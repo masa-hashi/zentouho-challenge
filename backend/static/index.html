@@ -160,6 +160,7 @@
     }
     .question-num { font-size:.78rem; color:var(--gray); margin-bottom:8px; }
     .question-text { font-size:clamp(1.05rem,3.8vw,1.3rem); font-weight:bold; line-height:1.65; white-space:pre-wrap; }
+    .svg-area { text-align:center; margin:14px 0 4px; }
     .passage-box {
       background:#F9FAFB; border-left:4px solid var(--kokugo);
       border-radius:0 12px 12px 0; padding:13px 15px; margin:13px 0;
@@ -418,6 +419,12 @@
         <div class="card-sub">かたちを かんがえよう</div>
         <div class="card-questions">5もん</div>
       </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('zukei-block')">
+        <div class="card-big-icon">🧊</div>
+        <div class="card-name">ブロックもんだい</div>
+        <div class="card-sub">積み木の かずを かぞえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
     </div>
   </div>
 </div>
@@ -436,6 +443,7 @@
       <div class="question-num" id="question-num"></div>
       <div class="question-text" id="question-text"></div>
       <div id="passage-area"></div>
+      <div id="svg-area" class="svg-area"></div>
       <div id="options-area"></div>
       <div id="input-area"></div>
       <div class="feedback-box" id="feedback-box">
@@ -473,6 +481,31 @@
 // ===================================================
 // QUESTION BANKS
 // ===================================================
+
+// ===================================================
+// SVG BLOCK RENDERER (isometric cubes)
+// ===================================================
+function blocksToSVG(blocks) {
+  var bw = 20, bh = 12, w = 240, h = 180;
+  function sx(b){ return (b.x - b.y) * bw; }
+  function sy(b){ return (b.x + b.y) * bh - b.z * bh * 2; }
+  var allSX = blocks.map(sx), allSY = blocks.map(sy);
+  var minX = Math.min.apply(null,allSX)-bw, maxX = Math.max.apply(null,allSX)+bw;
+  var minY = Math.min.apply(null,allSY)-bh, maxY = Math.max.apply(null,allSY)+bh*3;
+  var offX = w/2 - (minX+maxX)/2;
+  var offY = h*0.55 - (minY+maxY)/2;
+  var sorted = blocks.slice().sort(function(a,b){
+    return (a.x+a.y !== b.x+b.y) ? (a.x+a.y)-(b.x+b.y) : a.z-b.z;
+  });
+  var p = '';
+  sorted.forEach(function(bl){
+    var px = sx(bl)+offX, py = sy(bl)+offY;
+    p += '<polygon points="'+(px-bw)+','+py+' '+px+','+(py+bh)+' '+px+','+(py+3*bh)+' '+(px-bw)+','+(py+2*bh)+'" fill="#4A7FA8" stroke="#1E4D6B" stroke-width="0.8"/>';
+    p += '<polygon points="'+(px+bw)+','+py+' '+px+','+(py+bh)+' '+px+','+(py+3*bh)+' '+(px+bw)+','+(py+2*bh)+'" fill="#6EA0C3" stroke="#1E4D6B" stroke-width="0.8"/>';
+    p += '<polygon points="'+px+','+(py-bh)+' '+(px+bw)+','+py+' '+px+','+(py+bh)+' '+(px-bw)+','+py+'" fill="#B0D4E8" stroke="#1E4D6B" stroke-width="0.8"/>';
+  });
+  return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">'+p+'</svg>';
+}
 const QB = {
 
   'kanji-yomi': {
@@ -745,6 +778,74 @@ const QB = {
       { q:'へんの 長さが すべて 等しく、角が すべて 等しい 三角形を なんと いいますか？', opts:['直角三角形','二等辺三角形','正三角形','長三角形'], ans:2, exp:'3つの へんと 3つの 角が すべて 等しい 三角形を「正三角形（せいさんかくけい）」といいます。' },
     ]
   }
+  ,
+
+  'zukei-block': {
+    label: 'ブロックもんだい', subject:'sansu', type:'mc', count:5,
+    questions:[
+      {
+        q:'積み木（つみき）は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0}],
+        opts:['2こ','3こ','4こ','5こ'], ans:1,
+        exp:'3つ よこに ならんでいます。1こ×3れつ＝3こです。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:0,y:1,z:0}],
+        opts:['3こ','4こ','5こ','6こ'], ans:1,
+        exp:'L字（エルじ）の 形です。3こ＋1こ＝4こ。よこ3こと たて1こを 合わせます。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:1,y:0,z:1},{x:2,y:0,z:0},{x:2,y:0,z:1},{x:2,y:0,z:2}],
+        opts:['4こ','5こ','6こ','7こ'], ans:2,
+        exp:'左から 1こ・2こ・3この かいだん形。1＋2＋3＝6こです。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:1,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0},{x:1,y:2,z:0}],
+        opts:['4こ','5こ','6こ','7こ'], ans:1,
+        exp:'十字（じゅうじ）の 形です。上下左右 4こと 真ん中 1こで 合わせて 5こ。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},{x:0,y:0,z:1}],
+        opts:['4こ','5こ','6こ','7こ'], ans:1,
+        exp:'下の 段（だん）が 4こ、上の 段が 1こ。4＋1＝5こです。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:0,y:0,z:1},{x:0,y:0,z:2}],
+        opts:['4こ','5こ','6こ','7こ'], ans:1,
+        exp:'よこ3こ＋たて2こ（上に つんだ もの）。3＋2＝5こ。かさなりに 気を つけよう！'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0},{x:0,y:0,z:1}],
+        opts:['5こ','6こ','7こ','8こ'], ans:2,
+        exp:'下の 段：2れつ×3こ＝6こ。上の 段：1こ。6＋1＝7こです。うしろの 段も わすれずに！'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:0,y:1,z:0},{x:1,y:1,z:0},{x:2,y:1,z:0},{x:1,y:0,z:1},{x:1,y:1,z:1}],
+        opts:['6こ','7こ','8こ','9こ'], ans:2,
+        exp:'1だんめ：6こ（2×3）、2だんめ：2こ（まん中の列）。6＋2＝8こです。上の 積み木も わすれずに！'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:0,y:0,z:1},{x:1,y:0,z:1},{x:0,y:1,z:0},{x:1,y:1,z:0}],
+        opts:['4こ','5こ','6こ','7こ'], ans:2,
+        exp:'よこ2こ×おく2れつ＝4こ（下の 段）。上の 段 2こ。4＋2＝6こです。'
+      },
+      {
+        q:'積み木は ぜんぶで なんこ ありますか？',
+        blocks:[{x:0,y:0,z:0},{x:1,y:0,z:0},{x:2,y:0,z:0},{x:0,y:1,z:0},{x:0,y:2,z:0},{x:2,y:0,z:1},{x:2,y:0,z:2}],
+        opts:['5こ','6こ','7こ','8こ'], ans:2,
+        exp:'L字の 下の 部分（5こ）と 右はしに 2こ 積んで ある。5＋2＝7こです。'
+      },
+    ]
+  }
+
 
 };
 
@@ -958,6 +1059,10 @@ function renderQuestion() {
   pa.innerHTML = q.passage
     ? '<div class="passage-box">' + q.passage.split('\n').map(l => '<p>' + escHtml(l) + '</p>').join('') + '</div>'
     : '';
+
+  // SVG (block problems)
+  const svgArea = document.getElementById('svg-area');
+  if (svgArea) svgArea.innerHTML = q.blocks ? blocksToSVG(q.blocks) : '';
 
   document.getElementById('options-area').innerHTML = '';
   document.getElementById('input-area').innerHTML   = '';
