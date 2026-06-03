@@ -425,6 +425,24 @@
         <div class="card-sub">積み木の かずを かぞえよう</div>
         <div class="card-questions">5もん</div>
       </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('kisoku')">
+        <div class="card-big-icon">🔢</div>
+        <div class="card-name">きそくせい</div>
+        <div class="card-sub">かずの ならびの きまりを みつけよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('mushikui')">
+        <div class="card-big-icon">🐛</div>
+        <div class="card-name">むしくい算</div>
+        <div class="card-sub">□に あてはまる かずを もとめよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('tokei')">
+        <div class="card-big-icon">🕐</div>
+        <div class="card-name">時 計</div>
+        <div class="card-sub">時計の よみかたを れんしゅうしよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
     </div>
   </div>
 </div>
@@ -505,6 +523,30 @@ function blocksToSVG(blocks) {
     p += '<polygon points="'+px+','+(py-bh)+' '+(px+bw)+','+py+' '+px+','+(py+bh)+' '+(px-bw)+','+py+'" fill="#B0D4E8" stroke="#1E4D6B" stroke-width="0.8"/>';
   });
   return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">'+p+'</svg>';
+}
+
+function clockSVG(h, m) {
+  var r=52, cx=65, cy=65, w=130, ht=130;
+  var hAng = ((h%12) + m/60)*30 - 90;
+  var mAng = m*6 - 90;
+  function pt(ang, len){ var rad=ang*Math.PI/180; return {x:cx+Math.cos(rad)*len, y:cy+Math.sin(rad)*len}; }
+  var hp=pt(hAng,r*0.58), mp=pt(mAng,r*0.82);
+  var ticks='', nums='';
+  for(var i=0;i<60;i++){
+    var a=i*6-90, o=pt(a,r), inn=pt(a, i%5===0 ? r-9 : r-4);
+    ticks+='<line x1="'+o.x+'" y1="'+o.y+'" x2="'+inn.x+'" y2="'+inn.y+'" stroke="#888" stroke-width="'+(i%5===0?2:0.8)+'"/>';
+  }
+  for(var n=1;n<=12;n++){
+    var np=pt(n*30-90, r-18);
+    nums+='<text x="'+np.x+'" y="'+(np.y+4)+'" text-anchor="middle" font-size="11" font-weight="bold" fill="#222">'+n+'</text>';
+  }
+  return '<svg width="'+w+'" height="'+ht+'" viewBox="0 0 '+w+' '+ht+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="#FFF9F0" stroke="#444" stroke-width="2.5"/>'
+    +ticks+nums
+    +'<line x1="'+cx+'" y1="'+cy+'" x2="'+hp.x+'" y2="'+hp.y+'" stroke="#111" stroke-width="4" stroke-linecap="round"/>'
+    +'<line x1="'+cx+'" y1="'+cy+'" x2="'+mp.x+'" y2="'+mp.y+'" stroke="#444" stroke-width="2.5" stroke-linecap="round"/>'
+    +'<circle cx="'+cx+'" cy="'+cy+'" r="4" fill="#333"/>'
+    +'</svg>';
 }
 const QB = {
 
@@ -846,6 +888,70 @@ const QB = {
     ]
   }
 
+  ,
+
+  'kisoku': {
+    label:'きそくせい', subject:'sansu', type:'mc', count:5,
+    questions:[
+      { q:'□に あてはまる かずは なんですか？\n2, 4, 6, □, 10', opts:['7','8','9','12'], ans:1, exp:'2ずつ ふえています。6の つぎは 6＋2＝8。' },
+      { q:'□に あてはまる かずは なんですか？\n5, 10, 15, □, 25', opts:['18','20','22','24'], ans:1, exp:'5ずつ ふえています。15の つぎは 15＋5＝20。' },
+      { q:'□に あてはまる かずは なんですか？\n1, 3, 5, 7, □', opts:['8','9','10','11'], ans:1, exp:'2ずつ ふえています（きすうのならび）。7＋2＝9。' },
+      { q:'□に あてはまる かずは なんですか？\n20, 17, 14, 11, □', opts:['7','8','9','10'], ans:1, exp:'3ずつ へっています。11－3＝8。' },
+      { q:'□に あてはまる かずは なんですか？\n1, 2, 4, 8, □', opts:['10','12','16','18'], ans:2, exp:'2ばいずつ ふえています。8×2＝16。' },
+      { q:'□に あてはまる かずは なんですか？\n3, 6, 9, □, 15', opts:['10','11','12','13'], ans:2, exp:'3ずつ ふえています（3のだん）。9＋3＝12。' },
+      { q:'□に あてはまる かずは なんですか？\n100, 90, 80, 70, □', opts:['50','55','60','65'], ans:2, exp:'10ずつ へっています。70－10＝60。' },
+      { q:'□に あてはまる かずは なんですか？\n4, 8, 12, □, 20', opts:['14','15','16','17'], ans:2, exp:'4ずつ ふえています（4のだん）。12＋4＝16。' },
+      { q:'□に あてはまる かずは なんですか？\n50, 45, 40, 35, □', opts:['28','30','32','34'], ans:1, exp:'5ずつ へっています。35－5＝30。' },
+      { q:'□に あてはまる かずは なんですか？\n7, 14, 21, □, 35', opts:['25','27','28','30'], ans:2, exp:'7ずつ ふえています（7のだん）。21＋7＝28。' },
+      { q:'□に あてはまる かずは なんですか？\n1, 4, 7, 10, □', opts:['12','13','14','15'], ans:1, exp:'3ずつ ふえています。10＋3＝13。' },
+      { q:'□に あてはまる かずは なんですか？\n36, 30, 24, 18, □', opts:['10','11','12','14'], ans:2, exp:'6ずつ へっています。18－6＝12。' },
+      { q:'□に あてはまる かずは なんですか？\n64, 32, 16, 8, □', opts:['2','4','6','8'], ans:1, exp:'半分ずつ（÷2）になっています。8÷2＝4。' },
+      { q:'□に あてはまる かずは なんですか？\n□, 6, 9, 12, 15', opts:['0','2','3','4'], ans:2, exp:'3ずつ ふえています。6の 1つ 前は 6－3＝3。' },
+      { q:'□に あてはまる かずは なんですか？\n10, 8, 6, 4, □', opts:['0','1','2','3'], ans:2, exp:'2ずつ へっています。4－2＝2。' },
+      { q:'□に あてはまる かずは なんですか？\n2, 6, 18, □', opts:['36','48','54','72'], ans:2, exp:'3ばいずつ ふえています。18×3＝54。' },
+      { q:'□に あてはまる かずは なんですか？\n1, 2, 4, 7, 11, □', opts:['14','15','16','17'], ans:2, exp:'ふえる数が 1,2,3,4,5 と 1ずつ 大きくなっています。11＋5＝16。' },
+      { q:'□に あてはまる かずは なんですか？\n0, 4, 8, 12, □', opts:['14','15','16','18'], ans:2, exp:'4ずつ ふえています。12＋4＝16。' },
+    ]
+  },
+
+  'mushikui': {
+    label:'むしくい算', subject:'sansu', type:'mc', count:5,
+    questions:[
+      { q:'□に あてはまる かずは なんですか？\n□ ＋ 5 ＝ 13', opts:['6','7','8','9'], ans:2, exp:'□＝13－5＝8。ひき算で もとめます。' },
+      { q:'□に あてはまる かずは なんですか？\n17 － □ ＝ 9', opts:['6','7','8','9'], ans:2, exp:'□＝17－9＝8。17から□を ひくと 9に なります。' },
+      { q:'□に あてはまる かずは なんですか？\n□ × 6 ＝ 24', opts:['3','4','5','6'], ans:1, exp:'□＝24÷6＝4。6のだんで 24に なる数は 4。' },
+      { q:'□に あてはまる かずは なんですか？\n8 × □ ＝ 56', opts:['6','7','8','9'], ans:1, exp:'□＝56÷8＝7。8のだんで 56は「はちしちごじゅうろく」。' },
+      { q:'□に あてはまる かずは なんですか？\n□ ＋ 15 ＝ 32', opts:['15','16','17','18'], ans:2, exp:'□＝32－15＝17。32から 15を ひきます。' },
+      { q:'□に あてはまる かずは なんですか？\n45 － □ ＝ 18', opts:['25','26','27','28'], ans:2, exp:'□＝45－18＝27。45から □を ひくと 18に なります。' },
+      { q:'□に あてはまる かずは なんですか？\n□ × 9 ＝ 63', opts:['6','7','8','9'], ans:1, exp:'□＝63÷9＝7。9のだんで「くしちろくじゅうさん」。' },
+      { q:'□に あてはまる かずは なんですか？\n4 × □ ＝ 36', opts:['7','8','9','10'], ans:2, exp:'□＝36÷4＝9。4のだんで「しくさんじゅうろく」。' },
+      { q:'□に あてはまる かずは なんですか？\n100 － □ ＝ 37', opts:['53','60','63','73'], ans:2, exp:'□＝100－37＝63。100から 37を ひきます。' },
+      { q:'□に あてはまる かずは なんですか？\n□ － 28 ＝ 15', opts:['40','42','43','45'], ans:2, exp:'□＝15＋28＝43。□から 28を ひくと 15なので、たし算で もとめます。' },
+      { q:'□に あてはまる かずは なんですか？\n9 × □ ＝ 81', opts:['7','8','9','10'], ans:2, exp:'□＝81÷9＝9。「くくはちじゅういち」。' },
+      { q:'□に あてはまる かずは なんですか？\n□ ＋ 13 ＝ 30', opts:['15','16','17','18'], ans:2, exp:'□＝30－13＝17。30から 13を ひきます。' },
+      { q:'□に あてはまる かずは なんですか？\n54 － □ ＝ 29', opts:['23','24','25','26'], ans:2, exp:'□＝54－29＝25。' },
+      { q:'□に あてはまる かずは なんですか？\n□ × 7 ＝ 49', opts:['6','7','8','9'], ans:1, exp:'□＝49÷7＝7。「しちしちしじゅうく」。' },
+      { q:'□に あてはまる かずは なんですか？\n3 × □ ＋ 5 ＝ 17', opts:['3','4','5','6'], ans:1, exp:'まず 5を 右がわに うつす。3×□＝17－5＝12、□＝12÷3＝4。' },
+      { q:'□に あてはまる かずは なんですか？\n□ × 4 － 6 ＝ 18', opts:['5','6','7','8'], ans:1, exp:'まず 6を 右がわに うつす。□×4＝18＋6＝24、□＝24÷4＝6。' },
+    ]
+  },
+
+  'tokei': {
+    label:'時 計', subject:'sansu', type:'mc', count:5,
+    questions:[
+      { q:'この 時計は なん時ですか？', clock:{h:3,m:0}, opts:['3時','9時','12時','6時'], ans:0, exp:'みじかい 針が 3、ながい 針が 12を さして いる → 3時。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:6,m:30}, opts:['6時15分','6時30分','7時30分','5時30分'], ans:1, exp:'みじかい 針が 6と 7の あいだ、ながい 針が 6（30分）→ 6時30分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:9,m:15}, opts:['3時45分','9時5分','9時15分','9時3分'], ans:2, exp:'みじかい 針が 9すぎ、ながい 針が 3（15分）→ 9時15分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:10,m:45}, opts:['11時45分','10時15分','9時45分','10時45分'], ans:3, exp:'みじかい 針が 10と 11の あいだ（10時すぎ）、ながい 針が 9（45分）→ 10時45分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:4,m:50}, opts:['5時10分','4時50分','4時10分','5時50分'], ans:1, exp:'みじかい 針が ほぼ 5の ところ（4時50分）、ながい 針が 10（50分）→ 4時50分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:7,m:5}, opts:['7時1分','6時5分','7時25分','7時5分'], ans:3, exp:'みじかい 針が 7すぎ、ながい 針が 1（5分）→ 7時5分。1の めもりは 5分です。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:2,m:20}, opts:['2時4分','10時10分','2時15分','2時20分'], ans:3, exp:'みじかい 針が 2すぎ、ながい 針が 4（20分）→ 2時20分。4の めもりは 20分です。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:11,m:55}, opts:['12時55分','11時5分','11時55分','12時5分'], ans:2, exp:'みじかい 針が ほぼ 12の ところ（11時55分）、ながい 針が 11（55分）→ 11時55分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:8,m:35}, opts:['8時7分','7時35分','8時35分','8時25分'], ans:2, exp:'みじかい 針が 8と 9の あいだ、ながい 針が 7（35分）→ 8時35分。7の めもりは 35分。' },
+      { q:'この 時計は なん時なん分ですか？', clock:{h:5,m:40}, opts:['5時8分','6時40分','5時45分','5時40分'], ans:3, exp:'みじかい 針が 5と 6の あいだ（5時40分）、ながい 針が 8（40分）→ 5時40分。' },
+    ]
+  }
+
 
 };
 
@@ -1062,7 +1168,7 @@ function renderQuestion() {
 
   // SVG (block problems)
   const svgArea = document.getElementById('svg-area');
-  if (svgArea) svgArea.innerHTML = q.blocks ? blocksToSVG(q.blocks) : '';
+  if (svgArea) { if(q.blocks) svgArea.innerHTML=blocksToSVG(q.blocks); else if(q.clock) svgArea.innerHTML=clockSVG(q.clock.h,q.clock.m); else svgArea.innerHTML=''; }
 
   document.getElementById('options-area').innerHTML = '';
   document.getElementById('input-area').innerHTML   = '';
