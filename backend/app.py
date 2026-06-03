@@ -623,7 +623,7 @@ ADMIN_HTML = """<!DOCTYPE html>
               {{ pct }}%
             </span>
           </td>
-          <td><button class="del-btn" onclick="delResult({{ r.id }}, event)">🗑</button></td>
+          <td><button class="del-btn" onclick="delResult({{ r.id }})">🗑</button></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -733,20 +733,19 @@ function doFetch(url, method){
     .catch(() => alert('通信エラーが発生しました'));
 }
 
-function delResult(id, e){
-  e.stopPropagation();
-  if(!window.confirm('この記録を削除しますか？\nこの操作は取り消せません。')) return;
+function delResult(id){
+  if(!window.confirm('この記録を削除しますか？')) return;
   doFetch('/api/admin/result/' + id, 'DELETE');
 }
 
 function delUser(did, nick){
   var name = nick || 'このユーザー';
-  if(!window.confirm(name + 'のデータをすべて削除しますか？\nこの操作は取り消せません。')) return;
+  if(!window.confirm(name + ' のデータをすべて削除しますか？')) return;
   doFetch('/api/admin/user/' + encodeURIComponent(did), 'DELETE');
 }
 
 function delAll(){
-  if(!window.confirm('全データを削除しますか？\n\nこの操作は取り消せません。\n削除前に CSV エクスポートを推奨します。')) return;
+  if(!window.confirm('全データを削除しますか？ この操作は取り消せません。')) return;
   doFetch('/api/admin/all', 'DELETE');
 }
 
