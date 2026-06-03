@@ -61,6 +61,9 @@ def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
         if not session.get("admin_logged_in"):
+            # DELETE/POST の fetch リクエストには JSON で返す
+            if request.method in ("DELETE", "POST") and request.is_json or request.method == "DELETE":
+                return jsonify({"error": "unauthorized"}), 401
             return redirect(url_for("admin_login"))
         return f(*args, **kwargs)
     return decorated
@@ -722,24 +725,26 @@ function filterUsers(){
 }
 
 // ── Delete functions ──
+const FETCH_OPTS = {credentials: 'same-origin'};
+
 function delResult(id, e){
   e.stopPropagation();
   if(!confirm('この記録を削除しますか？')) return;
-  fetch('/api/admin/result/' + id, {method:'DELETE'})
-    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
+  fetch('/api/admin/result/' + id, {method:'DELETE', ...FETCH_OPTS})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); else alert('削除に失敗しました'); });
 }
 
 function delUser(did, nick){
   if(!confirm((nick||'このユーザー') + 'のデータをすべて削除しますか？\n（全チャレンジ記録が消えます）')) return;
-  fetch('/api/admin/user/' + encodeURIComponent(did), {method:'DELETE'})
-    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
+  fetch('/api/admin/user/' + encodeURIComponent(did), {method:'DELETE', ...FETCH_OPTS})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); else alert('削除に失敗しました'); });
 }
 
 function delAll(){
   if(!confirm('全データを削除しますか？\nこの操作は取り消せません。')) return;
   if(!confirm('本当によいですか？\n削除前に CSV エクスポートを推奨します。')) return;
-  fetch('/api/admin/all', {method:'DELETE'})
-    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
+  fetch('/api/admin/all', {method:'DELETE', ...FETCH_OPTS})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); else alert('削除に失敗しました'); });
 }
 
 // ── CSV export ──
