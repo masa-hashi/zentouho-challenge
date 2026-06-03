@@ -1,0 +1,1140 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全統小チャレンジ！ 小学２年生</title>
+  <style>
+    :root {
+      --kokugo: #E85D75;
+      --kokugo-light: #FFF0F3;
+      --sansu: #3B82F6;
+      --sansu-light: #EFF6FF;
+      --accent: #F59E0B;
+      --green: #10B981;
+      --red: #EF4444;
+      --bg: #FFFBF0;
+      --text: #1F2937;
+      --gray: #6B7280;
+      --white: #FFFFFF;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Hiragino Kaku Gothic Pro', 'ヒラギノ角ゴ Pro', 'Meiryo', 'Yu Gothic', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg, #FF6B35 0%, #F7C948 100%);
+      padding: 14px 20px;
+      text-align: center;
+      box-shadow: 0 3px 12px rgba(255,107,53,0.35);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+    header h1 {
+      color: #fff;
+      font-size: clamp(1rem, 4vw, 1.4rem);
+      letter-spacing: 0.05em;
+      text-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    header .subtitle {
+      color: rgba(255,255,255,0.9);
+      font-size: 0.78rem;
+      margin-top: 2px;
+    }
+
+    /* ===== BREADCRUMB ===== */
+    #breadcrumb {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 10px 20px;
+      font-size: 0.82rem;
+      color: var(--gray);
+      background: var(--white);
+      border-bottom: 1px solid #E5E7EB;
+      min-height: 38px;
+    }
+    #breadcrumb span { cursor: pointer; }
+    #breadcrumb span:hover { text-decoration: underline; color: var(--text); }
+    #breadcrumb .sep { color: #D1D5DB; }
+
+    /* ===== SCREENS ===== */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    .container {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 24px 16px 48px;
+    }
+
+    /* ===== HOME ===== */
+    .home-welcome {
+      text-align: center;
+      padding: 28px 0 16px;
+    }
+    .home-welcome .mascot { font-size: 4rem; }
+    .home-welcome h2 {
+      font-size: clamp(1.2rem, 5vw, 1.7rem);
+      margin-top: 10px;
+      line-height: 1.4;
+    }
+    .home-welcome p {
+      color: var(--gray);
+      font-size: 0.9rem;
+      margin-top: 8px;
+    }
+
+    .subject-cards {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 16px;
+      margin-top: 28px;
+    }
+    .subject-card {
+      border-radius: 20px;
+      padding: 28px 16px;
+      text-align: center;
+      cursor: pointer;
+      border: none;
+      transition: transform 0.15s, box-shadow 0.15s;
+      font-family: inherit;
+    }
+    .subject-card:hover { transform: translateY(-4px); box-shadow: 0 8px 24px rgba(0,0,0,0.15); }
+    .subject-card:active { transform: translateY(-1px); }
+    .subject-card.kokugo {
+      background: linear-gradient(135deg, #E85D75, #F997A8);
+      box-shadow: 0 4px 16px rgba(232,93,117,0.35);
+    }
+    .subject-card.sansu {
+      background: linear-gradient(135deg, #3B82F6, #60A5FA);
+      box-shadow: 0 4px 16px rgba(59,130,246,0.35);
+    }
+    .subject-card .card-icon { font-size: 2.8rem; }
+    .subject-card .card-title {
+      color: #fff;
+      font-size: 1.5rem;
+      font-weight: bold;
+      margin-top: 10px;
+    }
+    .subject-card .card-desc {
+      color: rgba(255,255,255,0.85);
+      font-size: 0.78rem;
+      margin-top: 6px;
+    }
+
+    /* ===== MENU GRIDS ===== */
+    .menu-header {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 20px 0 4px;
+    }
+    .menu-header .icon { font-size: 2rem; }
+    .menu-header h2 { font-size: 1.5rem; font-weight: bold; }
+    .menu-header.kokugo h2 { color: var(--kokugo); }
+    .menu-header.sansu h2 { color: var(--sansu); }
+
+    .menu-desc {
+      color: var(--gray);
+      font-size: 0.85rem;
+      margin-bottom: 20px;
+      padding-left: 4px;
+    }
+
+    .menu-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 14px;
+    }
+    .menu-card {
+      border-radius: 16px;
+      padding: 22px 14px;
+      cursor: pointer;
+      border: 2.5px solid transparent;
+      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
+      background: var(--white);
+      text-align: center;
+      font-family: inherit;
+    }
+    .menu-card:hover { transform: translateY(-3px); box-shadow: 0 6px 20px rgba(0,0,0,0.12); }
+    .menu-card.kokugo-card { border-color: #FBBCCA; }
+    .menu-card.kokugo-card:hover { border-color: var(--kokugo); box-shadow: 0 6px 20px rgba(232,93,117,0.2); }
+    .menu-card.sansu-card { border-color: #BFDBFE; }
+    .menu-card.sansu-card:hover { border-color: var(--sansu); box-shadow: 0 6px 20px rgba(59,130,246,0.2); }
+    .menu-card .card-big-icon { font-size: 2.2rem; }
+    .menu-card .card-name { font-size: 1rem; font-weight: bold; margin-top: 8px; }
+    .menu-card.kokugo-card .card-name { color: var(--kokugo); }
+    .menu-card.sansu-card .card-name { font-size: 0.95rem; color: var(--sansu); }
+    .menu-card .card-sub { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+    .menu-card .card-questions {
+      display: inline-block;
+      margin-top: 10px;
+      background: #F3F4F6;
+      border-radius: 10px;
+      padding: 2px 10px;
+      font-size: 0.72rem;
+      color: var(--gray);
+    }
+
+    /* ===== QUIZ SCREEN ===== */
+    .quiz-header {
+      margin-bottom: 20px;
+    }
+    .quiz-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 0.82rem;
+      font-weight: bold;
+      padding: 4px 14px;
+      border-radius: 20px;
+      margin-bottom: 12px;
+    }
+    .quiz-label.kokugo { background: #FEE2E9; color: var(--kokugo); }
+    .quiz-label.sansu { background: #DBEAFE; color: var(--sansu); }
+
+    .progress-wrap {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .progress-text { font-size: 0.82rem; color: var(--gray); white-space: nowrap; }
+    .progress-bar {
+      flex: 1;
+      height: 10px;
+      background: #E5E7EB;
+      border-radius: 10px;
+      overflow: hidden;
+    }
+    .progress-fill {
+      height: 100%;
+      border-radius: 10px;
+      transition: width 0.4s ease;
+    }
+    .progress-fill.kokugo { background: linear-gradient(90deg, #E85D75, #F997A8); }
+    .progress-fill.sansu { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+
+    .question-card {
+      background: var(--white);
+      border-radius: 20px;
+      padding: 28px 24px;
+      box-shadow: 0 4px 20px rgba(0,0,0,0.07);
+      margin-top: 20px;
+    }
+    .question-num {
+      font-size: 0.8rem;
+      color: var(--gray);
+      margin-bottom: 10px;
+    }
+    .question-text {
+      font-size: clamp(1.1rem, 4vw, 1.35rem);
+      font-weight: bold;
+      line-height: 1.6;
+      white-space: pre-wrap;
+    }
+
+    /* Reading passage */
+    .passage-box {
+      background: #F9FAFB;
+      border-left: 4px solid var(--kokugo);
+      border-radius: 0 12px 12px 0;
+      padding: 14px 16px;
+      margin: 14px 0;
+      font-size: 0.95rem;
+      line-height: 1.9;
+    }
+    .passage-box p { margin-bottom: 6px; }
+    .passage-box p:last-child { margin-bottom: 0; }
+
+    /* Multiple choice */
+    .options-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .option-btn {
+      padding: 16px 12px;
+      border-radius: 14px;
+      border: 2.5px solid #E5E7EB;
+      background: var(--white);
+      font-family: inherit;
+      font-size: clamp(0.95rem, 3vw, 1.05rem);
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s;
+      text-align: center;
+      line-height: 1.4;
+    }
+    .option-btn:hover:not(:disabled) {
+      border-color: #9CA3AF;
+      background: #F9FAFB;
+    }
+    .option-btn.selected { border-color: var(--accent); background: #FFFBEB; }
+    .option-btn.correct { border-color: var(--green); background: #D1FAE5; color: #065F46; }
+    .option-btn.wrong { border-color: var(--red); background: #FEE2E2; color: #991B1B; }
+    .option-btn:disabled { cursor: default; }
+
+    /* Fill input */
+    .input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      margin-top: 22px;
+    }
+    .answer-input {
+      width: 130px;
+      padding: 14px 16px;
+      border-radius: 14px;
+      border: 2.5px solid #E5E7EB;
+      font-size: 1.3rem;
+      font-weight: bold;
+      text-align: center;
+      font-family: inherit;
+      outline: none;
+      transition: border-color 0.15s;
+    }
+    .answer-input:focus { border-color: var(--accent); }
+    .answer-input.correct { border-color: var(--green); background: #D1FAE5; }
+    .answer-input.wrong { border-color: var(--red); background: #FEE2E2; }
+
+    .submit-btn {
+      padding: 14px 28px;
+      border-radius: 14px;
+      border: none;
+      background: linear-gradient(135deg, #F59E0B, #FCD34D);
+      color: #78350F;
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(245,158,11,0.35);
+      transition: transform 0.1s, box-shadow 0.1s;
+    }
+    .submit-btn:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(245,158,11,0.4); }
+    .submit-btn:active { transform: translateY(0); }
+    .submit-btn:disabled { background: #E5E7EB; color: var(--gray); box-shadow: none; cursor: default; transform: none; }
+
+    /* Feedback */
+    .feedback-box {
+      margin-top: 18px;
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      font-weight: bold;
+      display: none;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .feedback-box.show { display: flex; }
+    .feedback-box.correct-fb { background: #D1FAE5; color: #065F46; }
+    .feedback-box.wrong-fb { background: #FEE2E2; color: #991B1B; }
+    .feedback-box .fb-icon { font-size: 1.3rem; flex-shrink: 0; }
+    .feedback-box .fb-text { line-height: 1.5; }
+
+    .next-btn {
+      width: 100%;
+      margin-top: 16px;
+      padding: 16px;
+      border-radius: 14px;
+      border: none;
+      background: var(--text);
+      color: var(--white);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: bold;
+      cursor: pointer;
+      display: none;
+      transition: background 0.15s;
+    }
+    .next-btn:hover { background: #374151; }
+    .next-btn.show { display: block; }
+
+    /* ===== RESULT SCREEN ===== */
+    .result-card {
+      background: var(--white);
+      border-radius: 24px;
+      padding: 36px 28px;
+      text-align: center;
+      box-shadow: 0 8px 32px rgba(0,0,0,0.08);
+      margin-top: 24px;
+    }
+    .result-icon { font-size: 4rem; }
+    .result-title { font-size: 1.6rem; font-weight: bold; margin-top: 12px; }
+    .result-score {
+      font-size: 3.5rem;
+      font-weight: bold;
+      margin: 16px 0 4px;
+    }
+    .result-score .total { font-size: 1.5rem; color: var(--gray); }
+    .result-stars { font-size: 1.8rem; letter-spacing: 4px; margin: 8px 0; }
+    .result-message { color: var(--gray); font-size: 0.95rem; margin-top: 8px; line-height: 1.6; }
+
+    .result-breakdown {
+      background: #F9FAFB;
+      border-radius: 14px;
+      padding: 16px;
+      margin-top: 24px;
+      text-align: left;
+    }
+    .breakdown-title { font-size: 0.85rem; color: var(--gray); margin-bottom: 10px; }
+    .breakdown-item {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+      padding: 8px 0;
+      border-bottom: 1px solid #E5E7EB;
+      font-size: 0.88rem;
+      line-height: 1.5;
+    }
+    .breakdown-item:last-child { border-bottom: none; }
+    .breakdown-icon { font-size: 1rem; flex-shrink: 0; margin-top: 1px; }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 12px;
+      margin-top: 24px;
+    }
+    .action-btn {
+      padding: 14px;
+      border-radius: 14px;
+      border: none;
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: transform 0.1s;
+    }
+    .action-btn:hover { transform: translateY(-2px); }
+    .action-btn.retry { background: var(--accent); color: #78350F; }
+    .action-btn.back { background: #F3F4F6; color: var(--text); }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 420px) {
+      .options-grid { grid-template-columns: 1fr; }
+      .subject-cards { grid-template-columns: 1fr 1fr; }
+      .menu-grid { grid-template-columns: 1fr 1fr; }
+      .result-actions { grid-template-columns: 1fr; }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌟 全統小チャレンジ！ 小学２年生 🌟</h1>
+  <div class="subtitle">四谷学院 全国統一小学生試験 対策</div>
+</header>
+
+<div id="breadcrumb">
+  <span id="bc-home" onclick="goHome()">🏠 ホーム</span>
+</div>
+
+<!-- ===== HOME ===== -->
+<div id="screen-home" class="screen active">
+  <div class="container">
+    <div class="home-welcome">
+      <div class="mascot">📚</div>
+      <h2>さあ、べんきょうを<br>はじめよう！</h2>
+      <p>もんだいに チャレンジして　☆を あつめよう！</p>
+    </div>
+    <div class="subject-cards">
+      <button class="subject-card kokugo" onclick="showKokugoMenu()">
+        <div class="card-icon">📖</div>
+        <div class="card-title">国 語</div>
+        <div class="card-desc">かんじ・ことば・どっかい</div>
+      </button>
+      <button class="subject-card sansu" onclick="showSansuMenu()">
+        <div class="card-icon">🔢</div>
+        <div class="card-title">算 数</div>
+        <div class="card-desc">けいさん・くく・ずけい</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== KOKUGO MENU ===== -->
+<div id="screen-kokugo" class="screen">
+  <div class="container">
+    <div class="menu-header kokugo">
+      <div class="icon">📖</div>
+      <h2>国 語</h2>
+    </div>
+    <div class="menu-desc">れんしゅうしたい もんだいを えらぼう！</div>
+    <div class="menu-grid">
+      <button class="menu-card kokugo-card" onclick="startQuiz('kanji-yomi')">
+        <div class="card-big-icon">🔤</div>
+        <div class="card-name">漢字の読み</div>
+        <div class="card-sub">かんじの よみかた</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('kanji-kaki')">
+        <div class="card-big-icon">✏️</div>
+        <div class="card-name">漢字の書き</div>
+        <div class="card-sub">かんじを えらぼう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('kotoba')">
+        <div class="card-big-icon">💬</div>
+        <div class="card-name">言葉の意味</div>
+        <div class="card-sub">はんたいご・なかまのことば</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('dokkai')">
+        <div class="card-big-icon">📝</div>
+        <div class="card-name">読み取り</div>
+        <div class="card-sub">ぶんを よんで こたえよう</div>
+        <div class="card-questions">4もん</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SANSU MENU ===== -->
+<div id="screen-sansu" class="screen">
+  <div class="container">
+    <div class="menu-header sansu">
+      <div class="icon">🔢</div>
+      <h2>算 数</h2>
+    </div>
+    <div class="menu-desc">れんしゅうしたい もんだいを えらぼう！</div>
+    <div class="menu-grid">
+      <button class="menu-card sansu-card" onclick="startQuiz('keisan')">
+        <div class="card-big-icon">➕</div>
+        <div class="card-name">たし算・ひき算</div>
+        <div class="card-sub">ひっ算のれんしゅう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('kuku')">
+        <div class="card-big-icon">✖️</div>
+        <div class="card-name">九 九</div>
+        <div class="card-sub">かけ算のれんしゅう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('mondai')">
+        <div class="card-big-icon">📖</div>
+        <div class="card-name">文章題</div>
+        <div class="card-sub">もんだいを よんで こたえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('zukei')">
+        <div class="card-big-icon">📐</div>
+        <div class="card-name">図形</div>
+        <div class="card-sub">かたちについてかんがえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ SCREEN ===== -->
+<div id="screen-quiz" class="screen">
+  <div class="container">
+    <div class="quiz-header">
+      <div id="quiz-label" class="quiz-label kokugo"></div>
+      <div class="progress-wrap">
+        <span class="progress-text" id="progress-text">1 / 5</span>
+        <div class="progress-bar">
+          <div class="progress-fill kokugo" id="progress-fill" style="width:0%"></div>
+        </div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="question-num" id="question-num"></div>
+      <div class="question-text" id="question-text"></div>
+      <div id="passage-area"></div>
+      <div id="options-area"></div>
+      <div id="input-area"></div>
+      <div class="feedback-box" id="feedback-box">
+        <span class="fb-icon" id="fb-icon"></span>
+        <span class="fb-text" id="fb-text"></span>
+      </div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">つぎへ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT SCREEN ===== -->
+<div id="screen-result" class="screen">
+  <div class="container">
+    <div class="result-card">
+      <div class="result-icon" id="result-icon"></div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-score" id="result-score"></div>
+      <div class="result-stars" id="result-stars"></div>
+      <div class="result-message" id="result-message"></div>
+      <div class="result-breakdown" id="result-breakdown"></div>
+      <div class="result-actions">
+        <button class="action-btn retry" id="retry-btn" onclick="retryQuiz()">🔄 もう一度</button>
+        <button class="action-btn back" id="back-btn" onclick="backToMenu()">← もどる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// QUESTION BANKS
+// ===================================================
+const QB = {
+
+  'kanji-yomi': {
+    label: '漢字の読み',
+    subject: 'kokugo',
+    type: 'mc',
+    count: 5,
+    questions: [
+      { q:'「雨」の よみかたは？', opts:['あめ','ゆき','かぜ','くも'], ans:0 },
+      { q:'「星」の よみかたは？', opts:['つき','ひかり','ほし','そら'], ans:2 },
+      { q:'「春」の よみかたは？', opts:['なつ','あき','ふゆ','はる'], ans:3 },
+      { q:'「朝」の よみかたは？', opts:['ゆう','よる','ひる','あさ'], ans:3 },
+      { q:'「東」の よみかたは？', opts:['にし','みなみ','きた','ひがし'], ans:3 },
+      { q:'「声」の よみかたは？', opts:['かお','て','こえ','め'], ans:2 },
+      { q:'「光」の よみかたは？', opts:['かぜ','ひかり','おと','にじ'], ans:1 },
+      { q:'「馬」の よみかたは？', opts:['うし','うま','さかな','とり'], ans:1 },
+      { q:'「野」の よみかたは？', opts:['の','もり','さと','うみ'], ans:0 },
+      { q:'「答」の よみかたは？', opts:['もんだい','こたえ','しもん','たずね'], ans:1 },
+      { q:'「週」の よみかたは？', opts:['つき','にち','しゅう','ねん'], ans:2 },
+      { q:'「親」の よみかたは？', opts:['こども','おや','ちち','はは'], ans:1 },
+    ]
+  },
+
+  'kanji-kaki': {
+    label: '漢字の書き',
+    subject: 'kokugo',
+    type: 'mc',
+    count: 5,
+    questions: [
+      { q:'「はな」を かんじで かくと？', opts:['草','木','花','葉'], ans:2 },
+      { q:'「そら」を かんじで かくと？', opts:['海','山','空','川'], ans:2 },
+      { q:'「かわ」を かんじで かくと？', opts:['山','川','田','水'], ans:1 },
+      { q:'「ゆき」を かんじで かくと？', opts:['雨','風','雪','雲'], ans:2 },
+      { q:'「やま」を かんじで かくと？', opts:['川','田','山','土'], ans:2 },
+      { q:'「うみ」を かんじで かくと？', opts:['池','川','湖','海'], ans:3 },
+      { q:'「むし」を かんじで かくと？', opts:['魚','鳥','虫','牛'], ans:2 },
+      { q:'「むら」を かんじで かくと？', opts:['町','村','市','国'], ans:1 },
+      { q:'「ちから」を かんじで かくと？', opts:['石','金','力','木'], ans:2 },
+      { q:'「いろ」を かんじで かくと？', opts:['形','音','色','光'], ans:2 },
+      { q:'「とり」を かんじで かくと？', opts:['魚','鳥','虫','馬'], ans:1 },
+      { q:'「とも」を かんじで かくと？', opts:['親','兄','友','弟'], ans:2 },
+    ]
+  },
+
+  'kotoba': {
+    label: '言葉の意味',
+    subject: 'kokugo',
+    type: 'mc',
+    count: 5,
+    questions: [
+      { q:'「大きい」の はんたいの ことばは？', opts:['小さい','長い','高い','太い'], ans:0, hint:'大きい ↔ 小さい' },
+      { q:'「明るい」の はんたいの ことばは？', opts:['細い','暗い','遅い','重い'], ans:1, hint:'明るい ↔ 暗い' },
+      { q:'「速い」の はんたいの ことばは？', opts:['遅い','短い','弱い','低い'], ans:0, hint:'速い ↔ 遅い' },
+      { q:'「うれしい」の はんたいの ことばは？', opts:['おかしい','かなしい','やさしい','むずかしい'], ans:1, hint:'うれしい ↔ かなしい' },
+      { q:'「入る」の はんたいの ことばは？', opts:['行く','来る','出る','帰る'], ans:2, hint:'入る ↔ 出る' },
+      { q:'「古い」の はんたいの ことばは？', opts:['大きい','長い','新しい','高い'], ans:2, hint:'古い ↔ 新しい' },
+      { q:'「上」の はんたいの ことばは？', opts:['右','左','前','下'], ans:3, hint:'上 ↔ 下' },
+      { q:'「終わる」の はんたいの ことばは？', opts:['続く','始まる','止まる','変わる'], ans:1, hint:'終わる ↔ 始まる' },
+      { q:'「とても」と にた いみの ことばは？', opts:['少し','大変','ふつう','ちょっと'], ans:1, hint:'とても ＝ 大変（たいへん）' },
+      { q:'「急いで」と にた いみの ことばは？', opts:['ゆっくり','そっと','はやく','しずかに'], ans:2, hint:'急いで ＝ はやく' },
+      { q:'「正しい」の はんたいの ことばは？', opts:['むずかしい','まちがった','やさしい','おかしい'], ans:1, hint:'正しい ↔ まちがった' },
+      { q:'「夏」と なかまの ことばは どれですか？', opts:['朝・昼・夜','春・秋・冬','東・西・南・北','月・火・水・木'], ans:1, hint:'春・夏・秋・冬はきせつ（季節）のなかま' },
+    ]
+  },
+
+  'dokkai': {
+    label: '読み取り',
+    subject: 'kokugo',
+    type: 'dokkai',
+    count: 4,
+    passages: [
+      {
+        text: 'たろうくんは、まいあさ お母さんと いっしょに\n公園を さんぽします。\n公園には 大きな 木が 2本 あります。\nその木の下に、ベンチが 3つ あります。\nたろうくんは ベンチに すわって、\n小鳥の うたを きくのが 大好きです。',
+        questions: [
+          { q:'たろうくんは だれと さんぽを しますか？', opts:['お父さん','お母さん','おじいさん','一人で'], ans:1 },
+          { q:'公園に ベンチは いくつ ありますか？', opts:['1つ','2つ','3つ','4つ'], ans:2 },
+        ]
+      },
+      {
+        text: 'はなこさんは、図書かんで 本を 3さつ かりました。\n1さつは どうぶつの 本で、1さつは むかしばなしで、\nのこりの 1さつは 算数の もんだいしゅうです。\nはなこさんは どうぶつが 大好きなので、\nどうぶつの 本を いちばん 先に よみました。',
+        questions: [
+          { q:'はなこさんが かりた 本は ぜんぶで なんさつですか？', opts:['2さつ','3さつ','4さつ','5さつ'], ans:1 },
+          { q:'はなこさんが いちばん 先に よんだ 本は？', opts:['むかしばなし','算数の もんだいしゅう','どうぶつの 本','じゅぎょうの 本'], ans:2 },
+        ]
+      },
+      {
+        text: '学校の たいいくの じかんに、\n50メートル走を しました。\nたろうくんは 9びょうで はしりました。\nはなこさんは たろうくんより 1びょう おそく はしりました。\nジロウくんは はなこさんより 2びょう はやく はしりました。',
+        questions: [
+          { q:'はなこさんは なんびょうで はしりましたか？', opts:['8びょう','9びょう','10びょう','11びょう'], ans:2 },
+          { q:'3人の中で いちばん はやく はしったのは だれですか？', opts:['たろうくん','はなこさん','ジロウくん','おなじ'], ans:2 },
+        ]
+      }
+    ]
+  },
+
+  'keisan': {
+    label: 'たし算・ひき算',
+    subject: 'sansu',
+    type: 'fill',
+    count: 5,
+    questions: [
+      { q:'23 ＋ 47 ＝', ans:70 },
+      { q:'56 － 28 ＝', ans:28 },
+      { q:'38 ＋ 45 ＝', ans:83 },
+      { q:'72 － 35 ＝', ans:37 },
+      { q:'64 ＋ 27 ＝', ans:91 },
+      { q:'100 － 43 ＝', ans:57 },
+      { q:'19 ＋ 63 ＝', ans:82 },
+      { q:'85 － 49 ＝', ans:36 },
+      { q:'47 ＋ 36 ＝', ans:83 },
+      { q:'93 － 67 ＝', ans:26 },
+      { q:'58 ＋ 74 ＝', ans:132 },
+      { q:'120 － 58 ＝', ans:62 },
+    ]
+  },
+
+  'kuku': {
+    label: '九九',
+    subject: 'sansu',
+    type: 'fill',
+    count: 5,
+    questions: [
+      { q:'3 × 4 ＝', ans:12 },
+      { q:'7 × 6 ＝', ans:42 },
+      { q:'8 × 9 ＝', ans:72 },
+      { q:'4 × 5 ＝', ans:20 },
+      { q:'6 × 7 ＝', ans:42 },
+      { q:'9 × 3 ＝', ans:27 },
+      { q:'5 × 8 ＝', ans:40 },
+      { q:'2 × 7 ＝', ans:14 },
+      { q:'9 × 9 ＝', ans:81 },
+      { q:'6 × 8 ＝', ans:48 },
+      { q:'7 × 7 ＝', ans:49 },
+      { q:'8 × 4 ＝', ans:32 },
+    ]
+  },
+
+  'mondai': {
+    label: '文章題',
+    subject: 'sansu',
+    type: 'mc',
+    count: 5,
+    questions: [
+      {
+        q:'りんごが 5こ あります。\n3こ たべました。\nのこりは なんこですか？',
+        opts:['1こ','2こ','3こ','8こ'], ans:1,
+        hint:'5 － 3 ＝ 2'
+      },
+      {
+        q:'えんぴつが 8本 あります。\n4本 あげました。\nなんぼん のこりますか？',
+        opts:['2本','3本','4本','12本'], ans:2,
+        hint:'8 － 4 ＝ 4'
+      },
+      {
+        q:'1本 15円の えんぴつを 3本 かいました。\nぜんぶで いくらですか？',
+        opts:['30円','45円','18円','5円'], ans:1,
+        hint:'15 × 3 ＝ 45'
+      },
+      {
+        q:'バスに 6人 のっています。\nつぎの バスていで 4人 のってきました。\nぜんぶで なんにんですか？',
+        opts:['2人','8人','10人','12人'], ans:2,
+        hint:'6 ＋ 4 ＝ 10'
+      },
+      {
+        q:'1ふくろに 8こ はいった あめが 4ふくろ あります。\nぜんぶで なんこですか？',
+        opts:['12こ','24こ','32こ','16こ'], ans:2,
+        hint:'8 × 4 ＝ 32'
+      },
+      {
+        q:'子どもが 24人 います。\n男の子が 13人 です。\n女の子は なんにんですか？',
+        opts:['9人','10人','11人','37人'], ans:2,
+        hint:'24 － 13 ＝ 11'
+      },
+      {
+        q:'たろうくんは 1日に 4ページずつ 本を よみます。\n7日間で なんページ よみますか？',
+        opts:['11ページ','21ページ','28ページ','35ページ'], ans:2,
+        hint:'4 × 7 ＝ 28'
+      },
+      {
+        q:'クッキーが 36まい あります。\n4人で 同じ数ずつ わけると、\n1人 なんまいに なりますか？',
+        opts:['6まい','7まい','8まい','9まい'], ans:3,
+        hint:'36 ÷ 4 ＝ 9'
+      },
+      {
+        q:'本が 3だんの たなに 同じ数ずつ ならんでいます。\nぜんぶで 18さつ あります。\n1だんには なんさつ ありますか？',
+        opts:['3さつ','6さつ','9さつ','15さつ'], ans:1,
+        hint:'18 ÷ 3 ＝ 6'
+      },
+    ]
+  },
+
+  'zukei': {
+    label: '図形',
+    subject: 'sansu',
+    type: 'mc',
+    count: 5,
+    questions: [
+      { q:'三角形の 角は いくつですか？', opts:['1つ','2つ','3つ','4つ'], ans:2, hint:'三角形には3つの角があります' },
+      { q:'四角形の 辺は なんぼんですか？', opts:['2本','3本','4本','5本'], ans:2, hint:'四角形には4本の辺があります' },
+      { q:'正方形の 4つの 辺の 長さは どうなっていますか？', opts:['みんな ちがう','2つずつ 同じ','3つが 同じ','みんな 同じ'], ans:3, hint:'正方形は4つの辺がすべて同じ長さです' },
+      { q:'長方形の 角は ぜんぶで いくつですか？', opts:['2つ','3つ','4つ','6つ'], ans:2, hint:'長方形には4つの角があります' },
+      { q:'三角形を 2つ 合わせると、どんな 形に なりますか？', opts:['円','三角形','四角形','五角形'], ans:2, hint:'三角形を2つ合わせると四角形になります' },
+      { q:'右の形の 名前は なんですか？\n（辺が 4本で、向かい合う 辺が\n 同じ長さの 形）', opts:['正方形','長方形','三角形','円'], ans:1, hint:'向かい合う辺が同じ長さ→長方形' },
+      { q:'円の 中心から 円のまわりまでの\nきょりの ことを なんと いいますか？', opts:['直径','半径','辺','角'], ans:1, hint:'中心から円周までの距離→半径（はんけい）' },
+      { q:'まっすぐな 線だけで かこまれた 形を なんと いいますか？', opts:['円','多角形','らせん','曲線'], ans:1, hint:'直線だけでかこまれた形→多角形（たかくけい）' },
+      { q:'正三角形の 3つの 辺の 長さは？', opts:['みんな ちがう','2つだけ 同じ','みんな 同じ','1つだけ 同じ'], ans:2, hint:'正三角形は3つの辺がすべて同じ長さです' },
+    ]
+  }
+
+};
+
+// ===================================================
+// STATE
+// ===================================================
+let state = {
+  quizType: null,
+  questions: [],
+  current: 0,
+  score: 0,
+  answers: [],  // {correct:bool, question:str, userAns:str, correctAns:str}
+  answered: false,
+  parentScreen: null,
+  // for dokkai
+  passageIndex: 0,
+  questionInPassage: 0,
+};
+
+// ===================================================
+// NAVIGATION
+// ===================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+
+function goHome() {
+  setBreadcrumb([{label:'🏠 ホーム', action:null}]);
+  showScreen('home');
+}
+
+function showKokugoMenu() {
+  setBreadcrumb([
+    {label:'🏠 ホーム', action:'goHome()'},
+    {label:'📖 国語', action:null}
+  ]);
+  state.parentScreen = 'kokugo';
+  showScreen('kokugo');
+}
+
+function showSansuMenu() {
+  setBreadcrumb([
+    {label:'🏠 ホーム', action:'goHome()'},
+    {label:'🔢 算数', action:null}
+  ]);
+  state.parentScreen = 'sansu';
+  showScreen('sansu');
+}
+
+function backToMenu() {
+  if (state.parentScreen === 'kokugo') showKokugoMenu();
+  else showSansuMenu();
+}
+
+function setBreadcrumb(items) {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = items.map((item, i) => {
+    const isLast = i === items.length - 1;
+    const sep = i > 0 ? '<span class="sep"> › </span>' : '';
+    if (item.action) {
+      return sep + '<span onclick="' + item.action + '">' + item.label + '</span>';
+    }
+    return sep + '<span style="color:var(--text);font-weight:bold">' + item.label + '</span>';
+  }).join('');
+}
+
+// ===================================================
+// QUIZ START
+// ===================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function startQuiz(type) {
+  const bank = QB[type];
+  state.quizType = type;
+  state.current = 0;
+  state.score = 0;
+  state.answers = [];
+  state.answered = false;
+
+  if (type === 'dokkai') {
+    // Build flat list of passage+question pairs
+    const flatQ = [];
+    bank.passages.forEach(p => {
+      p.questions.forEach(q => {
+        flatQ.push({ passage: p.text, ...q, type: 'mc' });
+      });
+    });
+    state.questions = flatQ.slice(0, bank.count);
+  } else {
+    const pool = shuffle(bank.questions);
+    state.questions = pool.slice(0, bank.count);
+  }
+
+  const subject = bank.subject;
+  const parentLabel = subject === 'kokugo' ? '📖 国語' : '🔢 算数';
+  const parentAction = subject === 'kokugo' ? 'showKokugoMenu()' : 'showSansuMenu()';
+  setBreadcrumb([
+    {label:'🏠 ホーム', action:'goHome()'},
+    {label: parentLabel, action: parentAction},
+    {label: bank.label, action: null}
+  ]);
+
+  // Set label style
+  const label = document.getElementById('quiz-label');
+  label.className = 'quiz-label ' + subject;
+  label.textContent = (subject === 'kokugo' ? '📖 ' : '🔢 ') + bank.label;
+
+  // Set progress bar color
+  document.getElementById('progress-fill').className = 'progress-fill ' + subject;
+
+  showScreen('quiz');
+  renderQuestion();
+}
+
+// ===================================================
+// RENDER QUESTION
+// ===================================================
+function renderQuestion() {
+  const total = state.questions.length;
+  const idx = state.current;
+  const q = state.questions[idx];
+  const bank = QB[state.quizType];
+  state.answered = false;
+
+  // Progress
+  document.getElementById('progress-text').textContent = (idx + 1) + ' / ' + total;
+  const pct = (idx / total) * 100;
+  document.getElementById('progress-fill').style.width = pct + '%';
+
+  // Question number & text
+  document.getElementById('question-num').textContent = 'もんだい ' + (idx + 1);
+  document.getElementById('question-text').textContent = q.q;
+
+  // Passage (dokkai)
+  const passageArea = document.getElementById('passage-area');
+  if (q.passage) {
+    passageArea.innerHTML = '<div class="passage-box">' +
+      q.passage.split('\n').map(l => '<p>' + l + '</p>').join('') +
+      '</div>';
+  } else {
+    passageArea.innerHTML = '';
+  }
+
+  // Options / Input
+  const optArea = document.getElementById('options-area');
+  const inpArea = document.getElementById('input-area');
+  optArea.innerHTML = '';
+  inpArea.innerHTML = '';
+
+  const qType = bank.type === 'dokkai' ? 'mc' : bank.type;
+
+  if (qType === 'mc') {
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.onclick = () => selectOption(i);
+      btn.id = 'opt-' + i;
+      grid.appendChild(btn);
+    });
+    optArea.appendChild(grid);
+  } else {
+    // fill
+    inpArea.innerHTML = '<div class="input-wrap">' +
+      '<input class="answer-input" type="number" id="fill-input" placeholder="こたえ" min="0" max="9999">' +
+      '<button class="submit-btn" id="submit-btn" onclick="checkFill()">こたえる</button>' +
+      '</div>';
+    const inp = document.getElementById('fill-input');
+    inp.focus();
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkFill(); });
+  }
+
+  // Feedback & next
+  const fb = document.getElementById('feedback-box');
+  fb.className = 'feedback-box';
+  const nextBtn = document.getElementById('next-btn');
+  nextBtn.className = 'next-btn';
+  const isLast = idx === total - 1;
+  nextBtn.textContent = isLast ? '結果を見る 🏆' : 'つぎへ →';
+}
+
+// ===================================================
+// ANSWER HANDLING
+// ===================================================
+function selectOption(selected) {
+  if (state.answered) return;
+  state.answered = true;
+
+  const q = state.questions[state.current];
+  const isCorrect = selected === q.ans;
+
+  // Highlight options
+  q.opts.forEach((_, i) => {
+    const btn = document.getElementById('opt-' + i);
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === selected && !isCorrect) btn.classList.add('wrong');
+  });
+
+  recordAnswer(isCorrect, q.opts[selected], q.opts[q.ans], q);
+  showFeedback(isCorrect, q);
+}
+
+function checkFill() {
+  if (state.answered) return;
+  const inp = document.getElementById('fill-input');
+  const val = parseInt(inp.value, 10);
+  if (isNaN(val)) { inp.focus(); return; }
+
+  state.answered = true;
+  const q = state.questions[state.current];
+  const isCorrect = val === q.ans;
+
+  inp.classList.add(isCorrect ? 'correct' : 'wrong');
+  inp.disabled = true;
+  document.getElementById('submit-btn').disabled = true;
+
+  if (!isCorrect) {
+    // Show correct answer hint
+    const hint = document.createElement('div');
+    hint.style.cssText = 'margin-top:8px;font-size:0.88rem;color:#065F46;background:#D1FAE5;padding:8px 12px;border-radius:10px;';
+    hint.textContent = 'こたえ：' + q.ans;
+    document.getElementById('input-area').appendChild(hint);
+  }
+
+  recordAnswer(isCorrect, String(val), String(q.ans), q);
+  showFeedback(isCorrect, q);
+}
+
+function recordAnswer(isCorrect, userAns, correctAns, q) {
+  if (isCorrect) state.score++;
+  state.answers.push({
+    correct: isCorrect,
+    question: q.q.replace(/\n/g,' '),
+    userAns,
+    correctAns,
+    hint: q.hint || null
+  });
+}
+
+function showFeedback(isCorrect, q) {
+  const fb = document.getElementById('feedback-box');
+  const icon = document.getElementById('fb-icon');
+  const text = document.getElementById('fb-text');
+
+  if (isCorrect) {
+    fb.className = 'feedback-box correct-fb show';
+    icon.textContent = '⭕';
+    const msgs = ['せいかい！すごい！','すばらしい！','よくできました！','かんぺき！','その調子！'];
+    text.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  } else {
+    fb.className = 'feedback-box wrong-fb show';
+    icon.textContent = '❌';
+    let msg = 'ざんねん！';
+    if (q.hint) msg += '　ヒント：' + q.hint;
+    text.textContent = msg;
+  }
+
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+// ===================================================
+// NEXT QUESTION
+// ===================================================
+function nextQuestion() {
+  state.current++;
+  if (state.current >= state.questions.length) {
+    showResult();
+  } else {
+    renderQuestion();
+  }
+}
+
+// ===================================================
+// RESULT
+// ===================================================
+function showResult() {
+  const score = state.score;
+  const total = state.questions.length;
+  const pct = score / total;
+
+  // Update progress bar to 100%
+  document.getElementById('progress-fill').style.width = '100%';
+
+  const el = id => document.getElementById(id);
+
+  // Icon & title
+  let icon, title, message;
+  if (pct === 1) {
+    icon = '🏆'; title = 'かんぺき！'; message = 'ぜんもん せいかい！\nすごい！きみは 天才だ！';
+  } else if (pct >= 0.8) {
+    icon = '🌟'; title = 'すばらしい！'; message = 'ほぼ かんぺき！\nもう少しで 満点（まんてん）だよ！';
+  } else if (pct >= 0.6) {
+    icon = '😊'; title = 'よくできました！'; message = 'なかなか いいね！\nまちがえた もんだいを ふくしゅうしよう！';
+  } else if (pct >= 0.4) {
+    icon = '💪'; title = 'もう少し！'; message = 'もう一度 チャレンジして\nしっかり おぼえよう！';
+  } else {
+    icon = '📚'; title = 'れんしゅうしよう！'; message = 'むずかしかったね。\nいっしょに べんきょうしよう！';
+  }
+
+  el('result-icon').textContent = icon;
+  el('result-title').textContent = title;
+  el('result-score').innerHTML = score + '<span class="total"> / ' + total + '</span>';
+
+  // Stars
+  const stars = Math.round(pct * 5);
+  el('result-stars').textContent = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+
+  el('result-message').textContent = message;
+
+  // Breakdown
+  const bd = el('result-breakdown');
+  bd.innerHTML = '<div class="breakdown-title">もんだいの ふりかえり</div>' +
+    state.answers.map(a => {
+      const icon2 = a.correct ? '⭕' : '❌';
+      let detail = a.question;
+      if (!a.correct) detail += '　→ こたえ：' + a.correctAns;
+      return '<div class="breakdown-item"><span class="breakdown-icon">' + icon2 + '</span><span>' + detail + '</span></div>';
+    }).join('');
+
+  showScreen('result');
+}
+
+function retryQuiz() {
+  startQuiz(state.quizType);
+}
+
+// ===================================================
+// INIT
+// ===================================================
+setBreadcrumb([{label:'🏠 ホーム', action:null}]);
+</script>
+
+</body>
+</html>
