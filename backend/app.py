@@ -12,7 +12,9 @@ load_dotenv()
 app = Flask(__name__)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
-DB_PATH       = os.getenv("DB_PATH", "results.db")
+# Railway Volume は /data にマウントする想定。ローカルはカレントディレクトリ
+_default_db = "/data/results.db" if os.path.isdir("/data") else "results.db"
+DB_PATH       = os.getenv("DB_PATH", _default_db)
 ADMIN_PASSWORD = os.getenv("ADMIN_PASSWORD", "admin123")
 PORT          = int(os.getenv("PORT", 5000))
 DEBUG         = os.getenv("DEBUG", "false").lower() == "true"
