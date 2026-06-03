@@ -121,6 +121,45 @@ def health():
 
 
 # ─────────────────────────────────────────────
+# Admin delete routes
+# ─────────────────────────────────────────────
+@app.route("/api/admin/result/<int:result_id>", methods=["DELETE"])
+@admin_required
+def delete_result(result_id):
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM results WHERE id = ?", (result_id,))
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/admin/user/<path:device_id>", methods=["DELETE"])
+@admin_required
+def delete_user_data(device_id):
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM results WHERE device_id = ?", (device_id,))
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/admin/all", methods=["DELETE"])
+@admin_required
+def delete_all_data():
+    conn = get_db()
+    try:
+        conn.execute("DELETE FROM results")
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
+
+
+# ─────────────────────────────────────────────
 # Admin dashboard
 # ─────────────────────────────────────────────
 @app.route("/api/admin")
@@ -373,6 +412,21 @@ ADMIN_HTML = """<!DOCTYPE html>
       border-radius:9px;font-size:.82rem;cursor:pointer;font-family:inherit
     }
     .export-btn:hover{background:#E5E7EB}
+    .del-btn{
+      padding:3px 8px;border:1.5px solid #FCA5A5;background:#FFF5F5;
+      color:#EF4444;border-radius:6px;cursor:pointer;font-size:.75rem;
+      font-family:inherit;white-space:nowrap;transition:background .15s
+    }
+    .del-btn:hover{background:#FEE2E2}
+    .danger-zone{border:1.5px solid #FCA5A5;border-radius:18px;
+      padding:20px 24px;background:#FFFAFA;margin-bottom:24px}
+    .danger-zone .section-title{color:#EF4444}
+    .danger-btn{
+      padding:9px 20px;border:1.5px solid #FCA5A5;background:#FFF5F5;
+      color:#EF4444;border-radius:10px;cursor:pointer;font-size:.88rem;
+      font-family:inherit;font-weight:bold;transition:background .15s
+    }
+    .danger-btn:hover{background:#FEE2E2}
 
     @media(max-width:700px){
       .stats-row{grid-template-columns:repeat(2,1fr)}
@@ -536,7 +590,8 @@ ADMIN_HTML = """<!DOCTYPE html>
           <th>ニックネーム</th>
           <th>カテゴリ</th>
           <th>スコア</th>
-          <th>正かいりつ</th>
+          <th>正解率</th>
+          <th></th>
         </tr>
       </thead>
       <tbody>
@@ -559,6 +614,7 @@ ADMIN_HTML = """<!DOCTYPE html>
               {{ pct }}%
             </span>
           </td>
+          <td><button class="del-btn" onclick="delResult({{ r.id }}, event)">🗑</button></td>
         </tr>
         {% endfor %}
       </tbody>
@@ -567,6 +623,17 @@ ADMIN_HTML = """<!DOCTYPE html>
     {% else %}
     <p class="empty">データがありません。</p>
     {% endif %}
+  </div>
+
+  <!-- Danger zone -->
+  <div class="danger-zone">
+    <div class="section-head" style="margin-bottom:12px">
+      <span class="section-title">⚠️ 危険な操作</span>
+    </div>
+    <p style="font-size:.85rem;color:#6B7280;margin-bottom:14px">
+      削除したデータは復元できません。操作前に CSV でエクスポートすることを推奨します。
+    </p>
+    <button class="danger-btn" onclick="delAll()">🗑 全データを削除する</button>
   </div>
 
 </main>
@@ -625,6 +692,11 @@ function toggleDetail(did){
     });
     html += '</tbody></table>';
     if(userRes.length > 20) html += `<p class="text-gray" style="margin-top:8px;font-size:.78rem">…他 ${userRes.length-20} 件</p>`;
+    const dispName = userRes[0]?.nickname || '（未設定）';
+    html += `<div style="margin-top:14px;text-align:right">
+      <button class="del-btn" style="padding:6px 14px;font-size:.82rem"
+        onclick="delUser('${did}','${dispName}')">🗑 このユーザーのデータを全削除</button>
+    </div>`;
     inner.innerHTML = html;
   }
   row.style.display = '';
@@ -642,6 +714,27 @@ function filterUsers(){
     const detail = document.getElementById('detail-' + tr.dataset.did);
     if(detail) detail.style.display = 'none';
   });
+}
+
+// ── Delete functions ──
+function delResult(id, e){
+  e.stopPropagation();
+  if(!confirm('この記録を削除しますか？')) return;
+  fetch('/api/admin/result/' + id, {method:'DELETE'})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
+}
+
+function delUser(did, nick){
+  if(!confirm((nick||'このユーザー') + 'のデータをすべて削除しますか？\n（全チャレンジ記録が消えます）')) return;
+  fetch('/api/admin/user/' + encodeURIComponent(did), {method:'DELETE'})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
+}
+
+function delAll(){
+  if(!confirm('全データを削除しますか？\nこの操作は取り消せません。')) return;
+  if(!confirm('本当によいですか？\n削除前に CSV エクスポートを推奨します。')) return;
+  fetch('/api/admin/all', {method:'DELETE'})
+    .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
 }
 
 // ── CSV export ──
