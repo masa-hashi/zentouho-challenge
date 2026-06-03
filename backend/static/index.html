@@ -1,0 +1,1181 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>全統小チャレンジ！ 小学２年生</title>
+  <style>
+    :root {
+      --kokugo: #E85D75;
+      --sansu: #3B82F6;
+      --accent: #F59E0B;
+      --green: #10B981;
+      --red: #EF4444;
+      --bg: #FFFBF0;
+      --text: #1F2937;
+      --gray: #6B7280;
+      --white: #FFFFFF;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      font-family: 'Hiragino Kaku Gothic Pro','ヒラギノ角ゴ Pro','Meiryo','Yu Gothic',sans-serif;
+      background: var(--bg); color: var(--text); min-height: 100vh;
+    }
+
+    /* ===== HEADER ===== */
+    header {
+      background: linear-gradient(135deg,#FF6B35,#F7C948);
+      padding: 14px 20px; text-align: center;
+      box-shadow: 0 3px 12px rgba(255,107,53,.35);
+      position: sticky; top: 0; z-index: 100;
+    }
+    header h1 { color:#fff; font-size:clamp(.95rem,3.5vw,1.35rem); text-shadow:0 2px 4px rgba(0,0,0,.2); }
+    header .subtitle { color:rgba(255,255,255,.9); font-size:.75rem; margin-top:2px; }
+
+    /* ===== BREADCRUMB ===== */
+    #breadcrumb {
+      display:flex; align-items:center; gap:6px;
+      padding:10px 20px; font-size:.82rem; color:var(--gray);
+      background:var(--white); border-bottom:1px solid #E5E7EB; min-height:38px;
+    }
+    #breadcrumb span { cursor:pointer; }
+    #breadcrumb span:hover { text-decoration:underline; color:var(--text); }
+    #breadcrumb .sep { color:#D1D5DB; }
+
+    /* ===== SCREENS ===== */
+    .screen { display:none; }
+    .screen.active { display:block; }
+    .container { max-width:680px; margin:0 auto; padding:20px 16px 48px; }
+
+    /* ===== NICKNAME (HOME) ===== */
+    .nickname-setup-card {
+      background: linear-gradient(135deg,#FFFDE7,#FFF9C4);
+      border: 2px dashed var(--accent);
+      border-radius: 16px; padding:16px; margin-bottom:16px; text-align:center;
+    }
+    .nickname-setup-card p { font-weight:bold; margin-bottom:12px; font-size:1rem; }
+    .nick-input-row { display:flex; gap:8px; }
+    .nick-input {
+      flex:1; padding:11px 12px; border-radius:10px;
+      border:2px solid #E5E7EB; font-size:1rem; font-family:inherit; outline:none;
+    }
+    .nick-input:focus { border-color:var(--accent); }
+    .nick-save-btn {
+      padding:11px 16px; background:var(--accent); color:#78350F;
+      border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-family:inherit;
+      white-space:nowrap;
+    }
+    .nick-save-btn:hover { background:#D97706; }
+    .nickname-greeting {
+      background:linear-gradient(135deg,#FFF0F3,#FFFDE7);
+      border-radius:16px; padding:14px 18px; margin-bottom:16px;
+      display:flex; align-items:center; gap:10px; font-size:1rem; font-weight:bold;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);
+    }
+    .greeting-wave { font-size:1.4rem; }
+    .greeting-msg { flex:1; line-height:1.4; }
+    .edit-nick-btn {
+      padding:6px 12px; background:#F3F4F6;
+      border:1px solid #E5E7EB; border-radius:8px;
+      cursor:pointer; font-size:.78rem; font-family:inherit; white-space:nowrap;
+    }
+    .edit-nick-btn:hover { background:#E5E7EB; }
+
+    /* ===== HOME CARDS ===== */
+    .home-welcome { text-align:center; padding:20px 0 14px; }
+    .home-welcome .mascot { font-size:3.5rem; }
+    .home-welcome h2 { font-size:clamp(1.1rem,4.5vw,1.6rem); margin-top:8px; line-height:1.4; }
+    .home-welcome p { color:var(--gray); font-size:.88rem; margin-top:6px; }
+    .subject-cards { display:grid; grid-template-columns:1fr 1fr; gap:14px; margin-top:20px; }
+    .subject-card {
+      border-radius:20px; padding:26px 14px; text-align:center;
+      cursor:pointer; border:none; transition:transform .15s,box-shadow .15s; font-family:inherit;
+    }
+    .subject-card:hover { transform:translateY(-4px); box-shadow:0 8px 24px rgba(0,0,0,.15); }
+    .subject-card.kokugo {
+      background:linear-gradient(135deg,#E85D75,#F997A8);
+      box-shadow:0 4px 16px rgba(232,93,117,.35);
+    }
+    .subject-card.sansu {
+      background:linear-gradient(135deg,#3B82F6,#60A5FA);
+      box-shadow:0 4px 16px rgba(59,130,246,.35);
+    }
+    .subject-card .card-icon { font-size:2.6rem; }
+    .subject-card .card-title { color:#fff; font-size:1.45rem; font-weight:bold; margin-top:8px; }
+    .subject-card .card-desc { color:rgba(255,255,255,.85); font-size:.75rem; margin-top:4px; }
+    .records-btn {
+      display:flex; align-items:center; justify-content:center; gap:8px;
+      width:100%; margin-top:14px; padding:14px;
+      border-radius:14px; border:2px solid #E5E7EB;
+      background:var(--white); color:var(--text);
+      font-family:inherit; font-size:.95rem; font-weight:bold; cursor:pointer; transition:all .15s;
+    }
+    .records-btn:hover { border-color:#9CA3AF; background:#F9FAFB; transform:translateY(-2px); }
+
+    /* ===== MENU ===== */
+    .menu-header { display:flex; align-items:center; gap:12px; padding:18px 0 4px; }
+    .menu-header .icon { font-size:1.9rem; }
+    .menu-header h2 { font-size:1.45rem; font-weight:bold; }
+    .menu-header.kokugo h2 { color:var(--kokugo); }
+    .menu-header.sansu h2  { color:var(--sansu); }
+    .menu-desc { color:var(--gray); font-size:.85rem; margin-bottom:18px; }
+    .menu-grid { display:grid; grid-template-columns:1fr 1fr; gap:13px; }
+    .menu-card {
+      border-radius:16px; padding:20px 12px; cursor:pointer;
+      border:2.5px solid transparent; background:var(--white); text-align:center;
+      font-family:inherit; transition:transform .15s,box-shadow .15s,border-color .15s;
+    }
+    .menu-card:hover { transform:translateY(-3px); }
+    .menu-card.kokugo-card { border-color:#FBBCCA; }
+    .menu-card.kokugo-card:hover { border-color:var(--kokugo); box-shadow:0 6px 18px rgba(232,93,117,.2); }
+    .menu-card.sansu-card  { border-color:#BFDBFE; }
+    .menu-card.sansu-card:hover  { border-color:var(--sansu);  box-shadow:0 6px 18px rgba(59,130,246,.2); }
+    .menu-card .card-big-icon { font-size:2rem; }
+    .menu-card .card-name { font-size:.95rem; font-weight:bold; margin-top:7px; }
+    .menu-card.kokugo-card .card-name { color:var(--kokugo); }
+    .menu-card.sansu-card  .card-name { color:var(--sansu); }
+    .menu-card .card-sub { font-size:.7rem; color:var(--gray); margin-top:3px; }
+    .menu-card .card-questions {
+      display:inline-block; margin-top:9px;
+      background:#F3F4F6; border-radius:10px; padding:2px 10px; font-size:.7rem; color:var(--gray);
+    }
+
+    /* ===== QUIZ ===== */
+    .quiz-header { margin-bottom:18px; }
+    .quiz-label {
+      display:inline-flex; align-items:center; gap:6px;
+      font-size:.82rem; font-weight:bold; padding:4px 14px; border-radius:20px; margin-bottom:10px;
+    }
+    .quiz-label.kokugo { background:#FEE2E9; color:var(--kokugo); }
+    .quiz-label.sansu  { background:#DBEAFE; color:var(--sansu); }
+    .progress-wrap { display:flex; align-items:center; gap:10px; }
+    .progress-text { font-size:.82rem; color:var(--gray); white-space:nowrap; }
+    .progress-bar { flex:1; height:10px; background:#E5E7EB; border-radius:10px; overflow:hidden; }
+    .progress-fill { height:100%; border-radius:10px; transition:width .4s ease; }
+    .progress-fill.kokugo { background:linear-gradient(90deg,#E85D75,#F997A8); }
+    .progress-fill.sansu  { background:linear-gradient(90deg,#3B82F6,#60A5FA); }
+    .question-card {
+      background:var(--white); border-radius:20px; padding:26px 22px;
+      box-shadow:0 4px 20px rgba(0,0,0,.07); margin-top:18px;
+    }
+    .question-num { font-size:.78rem; color:var(--gray); margin-bottom:8px; }
+    .question-text { font-size:clamp(1.05rem,3.8vw,1.3rem); font-weight:bold; line-height:1.65; white-space:pre-wrap; }
+    .passage-box {
+      background:#F9FAFB; border-left:4px solid var(--kokugo);
+      border-radius:0 12px 12px 0; padding:13px 15px; margin:13px 0;
+      font-size:.93rem; line-height:1.9;
+    }
+    .passage-box p { margin-bottom:4px; }
+    .passage-box p:last-child { margin-bottom:0; }
+    .options-grid { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:20px; }
+    .option-btn {
+      padding:15px 11px; border-radius:13px; border:2.5px solid #E5E7EB;
+      background:var(--white); font-family:inherit; font-size:clamp(.93rem,2.8vw,1.03rem);
+      font-weight:bold; cursor:pointer; transition:all .15s; text-align:center; line-height:1.4;
+    }
+    .option-btn:hover:not(:disabled) { border-color:#9CA3AF; background:#F9FAFB; }
+    .option-btn.correct { border-color:var(--green); background:#D1FAE5; color:#065F46; }
+    .option-btn.wrong   { border-color:var(--red);   background:#FEE2E2; color:#991B1B; }
+    .option-btn:disabled { cursor:default; }
+    .input-wrap { display:flex; align-items:center; gap:11px; margin-top:20px; }
+    .answer-input {
+      width:120px; padding:13px 14px; border-radius:13px;
+      border:2.5px solid #E5E7EB; font-size:1.3rem; font-weight:bold;
+      text-align:center; font-family:inherit; outline:none; transition:border-color .15s;
+    }
+    .answer-input:focus   { border-color:var(--accent); }
+    .answer-input.correct { border-color:var(--green); background:#D1FAE5; }
+    .answer-input.wrong   { border-color:var(--red);   background:#FEE2E2; }
+    .submit-btn {
+      padding:13px 26px; border-radius:13px; border:none;
+      background:linear-gradient(135deg,#F59E0B,#FCD34D); color:#78350F;
+      font-family:inherit; font-size:1rem; font-weight:bold; cursor:pointer;
+      box-shadow:0 4px 12px rgba(245,158,11,.35); transition:transform .1s,box-shadow .1s;
+    }
+    .submit-btn:hover  { transform:translateY(-2px); }
+    .submit-btn:active { transform:translateY(0); }
+    .submit-btn:disabled { background:#E5E7EB; color:var(--gray); box-shadow:none; cursor:default; transform:none; }
+    .feedback-box {
+      margin-top:16px; padding:13px 16px; border-radius:13px;
+      font-size:.93rem; font-weight:bold; display:none; align-items:center; gap:10px;
+    }
+    .feedback-box.show    { display:flex; }
+    .feedback-box.correct-fb { background:#D1FAE5; color:#065F46; }
+    .feedback-box.wrong-fb   { background:#FEE2E2; color:#991B1B; }
+    .fb-icon { font-size:1.25rem; flex-shrink:0; }
+
+    /* ===== EXPLANATION BOX ===== */
+    .exp-box {
+      margin-top:12px; padding:14px 16px;
+      background:#F0FDF4; border:1.5px solid #86EFAC; border-radius:13px;
+      display:none;
+    }
+    .exp-box.show { display:block; }
+    .exp-title { font-size:.82rem; font-weight:bold; color:#059669; margin-bottom:7px; }
+    .exp-body  { font-size:.92rem; line-height:1.75; color:var(--text); white-space:pre-wrap; }
+
+    .next-btn {
+      width:100%; margin-top:15px; padding:15px; border-radius:13px; border:none;
+      background:var(--text); color:var(--white);
+      font-family:inherit; font-size:1rem; font-weight:bold; cursor:pointer; display:none; transition:background .15s;
+    }
+    .next-btn:hover { background:#374151; }
+    .next-btn.show  { display:block; }
+
+    /* ===== RESULT ===== */
+    .result-card {
+      background:var(--white); border-radius:24px; padding:34px 26px; text-align:center;
+      box-shadow:0 8px 32px rgba(0,0,0,.08); margin-top:22px;
+    }
+    .result-icon  { font-size:4rem; }
+    .result-title { font-size:1.55rem; font-weight:bold; margin-top:10px; }
+    .result-score { font-size:3.2rem; font-weight:bold; margin:14px 0 4px; }
+    .result-score .total { font-size:1.4rem; color:var(--gray); }
+    .result-stars   { font-size:1.7rem; letter-spacing:4px; margin:7px 0; }
+    .result-message { color:var(--gray); font-size:.93rem; margin-top:7px; line-height:1.6; }
+    .result-breakdown { background:#F9FAFB; border-radius:13px; padding:15px; margin-top:22px; text-align:left; }
+    .breakdown-title  { font-size:.83rem; color:var(--gray); margin-bottom:9px; }
+    .breakdown-item {
+      display:flex; align-items:flex-start; gap:9px; padding:7px 0;
+      border-bottom:1px solid #E5E7EB; font-size:.86rem; line-height:1.5;
+    }
+    .breakdown-item:last-child { border-bottom:none; }
+    .breakdown-icon { font-size:.95rem; flex-shrink:0; margin-top:1px; }
+    .result-actions { display:grid; grid-template-columns:1fr 1fr; gap:11px; margin-top:22px; }
+    .action-btn { padding:13px; border-radius:13px; border:none; font-family:inherit; font-size:.93rem; font-weight:bold; cursor:pointer; transition:transform .1s; }
+    .action-btn:hover  { transform:translateY(-2px); }
+    .action-btn.retry  { background:var(--accent); color:#78350F; }
+    .action-btn.back   { background:#F3F4F6; color:var(--text); }
+
+    /* ===== RECORDS ===== */
+    .records-header { padding:18px 0 4px; }
+    .records-header h2 { font-size:1.45rem; font-weight:bold; }
+    .nick-record-box {
+      background:linear-gradient(135deg,#FFF0F3,#FFFDE7);
+      border-radius:16px; padding:14px 18px; margin:12px 0 20px;
+      display:flex; align-items:center; gap:10px;
+    }
+    .nick-record-name { flex:1; font-size:1.1rem; font-weight:bold; }
+    .nick-record-id   { font-size:.72rem; color:var(--gray); margin-top:2px; font-family:monospace; }
+    .nick-edit-btn {
+      padding:7px 13px; background:var(--white); border:1.5px solid #E5E7EB;
+      border-radius:9px; cursor:pointer; font-size:.8rem; font-family:inherit;
+    }
+    .nick-edit-btn:hover { background:#F9FAFB; }
+    .stats-grid { display:grid; grid-template-columns:repeat(3,1fr); gap:11px; margin-bottom:22px; }
+    .stat-card { background:var(--white); border-radius:15px; padding:15px 9px; text-align:center; box-shadow:0 2px 8px rgba(0,0,0,.06); }
+    .stat-val   { font-size:1.6rem; font-weight:bold; }
+    .stat-label { font-size:.7rem; color:var(--gray); margin-top:3px; }
+    .section-title { font-size:.83rem; font-weight:bold; color:var(--gray); margin:0 0 9px; letter-spacing:.04em; }
+    .category-list { margin-bottom:22px; }
+    .category-row { background:var(--white); border-radius:13px; padding:13px 15px; margin-bottom:9px; box-shadow:0 2px 8px rgba(0,0,0,.05); }
+    .category-row-top { display:flex; align-items:center; justify-content:space-between; margin-bottom:7px; }
+    .category-row-name  { font-size:.9rem; font-weight:bold; }
+    .category-row-score { font-size:.8rem; color:var(--gray); }
+    .category-bar-bg { height:8px; background:#F3F4F6; border-radius:8px; overflow:hidden; }
+    .category-bar-fill { height:100%; border-radius:8px; transition:width .6s ease; }
+    .category-bar-fill.kokugo { background:linear-gradient(90deg,#E85D75,#F997A8); }
+    .category-bar-fill.sansu  { background:linear-gradient(90deg,#3B82F6,#60A5FA); }
+    .category-row-stars { font-size:.83rem; margin-top:5px; color:var(--accent); }
+    .category-row-count { font-size:.7rem; color:var(--gray); }
+    .history-list { margin-bottom:22px; }
+    .history-item { display:flex; align-items:center; gap:11px; padding:11px 13px; background:var(--white); border-radius:11px; margin-bottom:7px; box-shadow:0 2px 6px rgba(0,0,0,.04); }
+    .history-badge { width:34px; height:34px; border-radius:9px; display:flex; align-items:center; justify-content:center; font-size:1.05rem; flex-shrink:0; }
+    .history-badge.kokugo { background:#FEE2E9; }
+    .history-badge.sansu  { background:#DBEAFE; }
+    .history-info  { flex:1; }
+    .history-label { font-size:.86rem; font-weight:bold; }
+    .history-date  { font-size:.7rem; color:var(--gray); margin-top:2px; }
+    .history-score { text-align:right; }
+    .hs-val { font-size:.98rem; font-weight:bold; }
+    .hs-pct { font-size:.7rem; color:var(--gray); }
+    .clear-btn {
+      width:100%; padding:12px; border-radius:11px; border:1.5px solid #FCA5A5;
+      background:#FFF5F5; color:#EF4444; font-family:inherit; font-size:.86rem; cursor:pointer; margin-top:6px; transition:all .15s;
+    }
+    .clear-btn:hover { background:#FEE2E2; }
+    .empty-records { text-align:center; padding:38px 18px; color:var(--gray); }
+    .empty-records .empty-icon { font-size:2.8rem; }
+    .empty-records p { margin-top:11px; font-size:.93rem; }
+
+    /* ===== RESPONSIVE ===== */
+    @media(max-width:420px){
+      .options-grid { grid-template-columns:1fr; }
+      .result-actions { grid-template-columns:1fr; }
+      .stats-grid { grid-template-columns:repeat(3,1fr); }
+    }
+  </style>
+</head>
+<body>
+
+<header>
+  <h1>🌟 全統小チャレンジ！ 小学２年生 🌟</h1>
+  <div class="subtitle">四谷学院 全国統一小学生試験 たいさく</div>
+</header>
+
+<div id="breadcrumb">
+  <span onclick="goHome()">🏠 ホーム</span>
+</div>
+
+<!-- ===== HOME ===== -->
+<div id="screen-home" class="screen active">
+  <div class="container">
+    <div class="home-welcome">
+      <div class="mascot">📚</div>
+      <h2>さあ、べんきょうを<br>はじめよう！</h2>
+      <p>もんだいに チャレンジして ☆を あつめよう！</p>
+    </div>
+
+    <!-- nickname section -->
+    <div id="nickname-wrap" style="margin-top:18px;"></div>
+
+    <div class="subject-cards">
+      <button class="subject-card kokugo" onclick="showKokugoMenu()">
+        <div class="card-icon">📖</div>
+        <div class="card-title">国 語</div>
+        <div class="card-desc">かんじ・ことば・どっかい</div>
+      </button>
+      <button class="subject-card sansu" onclick="showSansuMenu()">
+        <div class="card-icon">🔢</div>
+        <div class="card-title">算 数</div>
+        <div class="card-desc">けいさん・くく・ずけい</div>
+      </button>
+    </div>
+    <button class="records-btn" onclick="showRecords()">📊 がくしゅう きろくを 見る</button>
+  </div>
+</div>
+
+<!-- ===== RECORDS ===== -->
+<div id="screen-records" class="screen">
+  <div class="container">
+    <div class="records-header"><h2>📊 がくしゅう きろく</h2></div>
+    <div id="nick-record-area"></div>
+    <div id="records-content"></div>
+  </div>
+</div>
+
+<!-- ===== KOKUGO MENU ===== -->
+<div id="screen-kokugo" class="screen">
+  <div class="container">
+    <div class="menu-header kokugo"><div class="icon">📖</div><h2>国 語</h2></div>
+    <div class="menu-desc">れんしゅうしたい もんだいを えらぼう！</div>
+    <div class="menu-grid">
+      <button class="menu-card kokugo-card" onclick="startQuiz('kanji-yomi')">
+        <div class="card-big-icon">🔤</div>
+        <div class="card-name">かんじの よみ</div>
+        <div class="card-sub">かんじの よみかた</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('kanji-kaki')">
+        <div class="card-big-icon">✏️</div>
+        <div class="card-name">かんじの かき</div>
+        <div class="card-sub">かんじを えらぼう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('kotoba')">
+        <div class="card-big-icon">💬</div>
+        <div class="card-name">ことばの いみ</div>
+        <div class="card-sub">はんたいご・なかまのことば</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card kokugo-card" onclick="startQuiz('dokkai')">
+        <div class="card-big-icon">📝</div>
+        <div class="card-name">よみとり</div>
+        <div class="card-sub">ぶんを よんで こたえよう</div>
+        <div class="card-questions">4もん</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== SANSU MENU ===== -->
+<div id="screen-sansu" class="screen">
+  <div class="container">
+    <div class="menu-header sansu"><div class="icon">🔢</div><h2>算 数</h2></div>
+    <div class="menu-desc">れんしゅうしたい もんだいを えらぼう！</div>
+    <div class="menu-grid">
+      <button class="menu-card sansu-card" onclick="startQuiz('keisan')">
+        <div class="card-big-icon">➕</div>
+        <div class="card-name">たし算・ひき算</div>
+        <div class="card-sub">ひっ算の れんしゅう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('kuku')">
+        <div class="card-big-icon">✖️</div>
+        <div class="card-name">九 九</div>
+        <div class="card-sub">かけ算の れんしゅう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('mondai')">
+        <div class="card-big-icon">📖</div>
+        <div class="card-name">ぶんしょうだい</div>
+        <div class="card-sub">もんだいを よんで こたえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('zukei')">
+        <div class="card-big-icon">📐</div>
+        <div class="card-name">図 形</div>
+        <div class="card-sub">かたちを かんがえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== QUIZ ===== -->
+<div id="screen-quiz" class="screen">
+  <div class="container">
+    <div class="quiz-header">
+      <div id="quiz-label" class="quiz-label kokugo"></div>
+      <div class="progress-wrap">
+        <span class="progress-text" id="progress-text">1 / 5</span>
+        <div class="progress-bar"><div class="progress-fill kokugo" id="progress-fill" style="width:0%"></div></div>
+      </div>
+    </div>
+    <div class="question-card">
+      <div class="question-num" id="question-num"></div>
+      <div class="question-text" id="question-text"></div>
+      <div id="passage-area"></div>
+      <div id="options-area"></div>
+      <div id="input-area"></div>
+      <div class="feedback-box" id="feedback-box">
+        <span class="fb-icon" id="fb-icon"></span>
+        <span id="fb-text"></span>
+      </div>
+      <div class="exp-box" id="exp-box">
+        <div class="exp-title">📘 かいせつ</div>
+        <div class="exp-body" id="exp-body"></div>
+      </div>
+      <button class="next-btn" id="next-btn" onclick="nextQuestion()">つぎへ →</button>
+    </div>
+  </div>
+</div>
+
+<!-- ===== RESULT ===== -->
+<div id="screen-result" class="screen">
+  <div class="container">
+    <div class="result-card">
+      <div class="result-icon"  id="result-icon"></div>
+      <div class="result-title" id="result-title"></div>
+      <div class="result-score" id="result-score"></div>
+      <div class="result-stars" id="result-stars"></div>
+      <div class="result-message" id="result-message"></div>
+      <div class="result-breakdown" id="result-breakdown"></div>
+      <div class="result-actions">
+        <button class="action-btn retry" onclick="retryQuiz()">🔄 もう一度</button>
+        <button class="action-btn back"  onclick="backToMenu()">← もどる</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ===================================================
+// QUESTION BANKS
+// ===================================================
+const QB = {
+
+  'kanji-yomi': {
+    label:'かんじの よみ', subject:'kokugo', type:'mc', count:5,
+    questions:[
+      { q:'「雨」の よみかたは？', opts:['あめ','ゆき','かぜ','くも'], ans:0,
+        exp:'「雨（あめ）」は 空から 水が おちてくる ことです。雨の 日に かさを さします。' },
+      { q:'「星」の よみかたは？', opts:['つき','ひかり','ほし','そら'], ans:2,
+        exp:'「星（ほし）」は よるの 空に かがやく 小さな 光です。よく 晴れた 夜に 見えます。' },
+      { q:'「春」の よみかたは？', opts:['なつ','あき','ふゆ','はる'], ans:3,
+        exp:'「春（はる）」は 冬の つぎの きせつです。花が さいて あたたかく なります。' },
+      { q:'「朝」の よみかたは？', opts:['ゆう','よる','ひる','あさ'], ans:3,
+        exp:'「朝（あさ）」は 一日の はじまりです。たいようが のぼってきます。' },
+      { q:'「東」の よみかたは？', opts:['にし','みなみ','きた','ひがし'], ans:3,
+        exp:'「東（ひがし）」は たいようが のぼる 方こうです。東・西・南・北の 4つが あります。' },
+      { q:'「声」の よみかたは？', opts:['かお','て','こえ','め'], ans:2,
+        exp:'「声（こえ）」は 口から 出す 音です。「大きな こえで はなす」のように つかいます。' },
+      { q:'「光」の よみかたは？', opts:['かぜ','ひかり','おと','にじ'], ans:1,
+        exp:'「光（ひかり）」は たいようや でんきゅうが 出す 明るい ものです。' },
+      { q:'「馬」の よみかたは？', opts:['うし','うま','さかな','とり'], ans:1,
+        exp:'「馬（うま）」は 4本 足の 大きな どうぶつです。速く 走れます。' },
+      { q:'「野」の よみかたは？', opts:['の','もり','さと','うみ'], ans:0,
+        exp:'「野（の）」は 広い 草はらの ことです。「野原（のはら）」とも いいます。' },
+      { q:'「答」の よみかたは？', opts:['もんだい','こたえ','しもん','たずね'], ans:1,
+        exp:'「答（こた）える」は もんだいに こたえる ことです。「こたえを 書く」のように つかいます。' },
+      { q:'「週」の よみかたは？', opts:['つき','にち','しゅう','ねん'], ans:2,
+        exp:'「週（しゅう）」は 7日間の ことです。月・火・水・木・金・土・日で 一週間です。' },
+      { q:'「親」の よみかたは？', opts:['こども','おや','ちち','はは'], ans:1,
+        exp:'「親（おや）」は お父さんや お母さんの ことです。「親子（おやこ）」という ことばも あります。' },
+    ]
+  },
+
+  'kanji-kaki': {
+    label:'かんじの かき', subject:'kokugo', type:'mc', count:5,
+    questions:[
+      { q:'「はな」を かんじで かくと？', opts:['草','木','花','葉'], ans:2,
+        exp:'「花（はな）」は 草や 木の きれいな ところです。「くさかんむり」の 下に 「化（か）」と 書きます。' },
+      { q:'「そら」を かんじで かくと？', opts:['海','山','空','川'], ans:2,
+        exp:'「空（そら）」は 上を 見たときに 広がる 青い ところです。「あな（穴）」ではなく「空」と 書きます。' },
+      { q:'「かわ」を かんじで かくと？', opts:['山','川','田','水'], ans:1,
+        exp:'「川（かわ）」は 水が 流れる ながい ところです。3本の たてせんで 書きます。' },
+      { q:'「ゆき」を かんじで かくと？', opts:['雨','風','雪','雲'], ans:2,
+        exp:'「雪（ゆき）」は 冬に 空から ふる 白い ものです。上の「あめかんむり」に 気を つけよう！' },
+      { q:'「やま」を かんじで かくと？', opts:['川','田','山','土'], ans:2,
+        exp:'「山（やま）」は 高く もりあがった 土地です。3つの とがった 形で 書きます。' },
+      { q:'「うみ」を かんじで かくと？', opts:['池','川','湖','海'], ans:3,
+        exp:'「海（うみ）」は 広い 水の あるところです。左に「さんずい（氵）」が ついています。' },
+      { q:'「むし」を かんじで かくと？', opts:['魚','鳥','虫','牛'], ans:2,
+        exp:'「虫（むし）」は アリや チョウなどの 小さな いきものです。' },
+      { q:'「むら」を かんじで かくと？', opts:['町','村','市','国'], ans:1,
+        exp:'「村（むら）」は 小さな まちの ことです。「木（き）」と「寸（すん）」を 合わせた 形です。' },
+      { q:'「ちから」を かんじで かくと？', opts:['石','金','力','木'], ans:2,
+        exp:'「力（ちから）」は 何かを できる つよさの ことです。シンプルな 形で 書きます。' },
+      { q:'「いろ」を かんじで かくと？', opts:['形','音','色','光'], ans:2,
+        exp:'「色（いろ）」は 赤・青・黄などの ことです。「いろいろな 色」のように つかいます。' },
+      { q:'「とり」を かんじで かくと？', opts:['魚','鳥','虫','馬'], ans:1,
+        exp:'「鳥（とり）」は つばめや すずめなど、はねを もつ どうぶつです。魚（さかな）と まちがえないでね！' },
+      { q:'「とも」を かんじで かくと？', opts:['親','兄','友','弟'], ans:2,
+        exp:'「友（とも）」は なかよしの 人の ことです。「友だち」とも いいます。' },
+    ]
+  },
+
+  'kotoba': {
+    label:'ことばの いみ', subject:'kokugo', type:'mc', count:5,
+    questions:[
+      { q:'「大きい」の はんたいの ことばは？', opts:['小さい','長い','高い','太い'], ans:0,
+        exp:'「大きい」と「小さい」は 大きさを 表す はんたいの ことばです。大きい ゾウ・小さい アリ、と おぼえよう！' },
+      { q:'「明るい」の はんたいの ことばは？', opts:['細い','くらい','おそい','おもい'], ans:1,
+        exp:'光が ある → 明るい、光が ない → くらい（暗い）。昼は 明るく、夜は くらいです。' },
+      { q:'「はやい（速い）」の はんたいの ことばは？', opts:['おそい','みじかい','弱い','ひくい'], ans:0,
+        exp:'「はやい（速い）」と「おそい（遅い）」は 動きの 速さを 表す はんたいの ことばです。' },
+      { q:'「うれしい」の はんたいの ことばは？', opts:['おかしい','かなしい','やさしい','むずかしい'], ans:1,
+        exp:'よい ことが あると「うれしい」、よくない ことが あると「かなしい」きもちに なります。' },
+      { q:'「入る」の はんたいの ことばは？', opts:['行く','来る','出る','帰る'], ans:2,
+        exp:'中に「入る」、外に「出る」は 反対の 動きです。「入口」と「出口」も はんたいの ことばです。' },
+      { q:'「古い」の はんたいの ことばは？', opts:['大きい','長い','新しい','高い'], ans:2,
+        exp:'時間が たつと「古く」なります。できたばかりは「新しい」です。古い本・新しい本、と つかいます。' },
+      { q:'「上」の はんたいの ことばは？', opts:['右','左','前','下'], ans:3,
+        exp:'高い ところが「上」、低い ところが「下」です。上・下、右・左、前・後ろも はんたいの ことばです。' },
+      { q:'「おわる」の はんたいの ことばは？', opts:['つづく','はじまる','止まる','かわる'], ans:1,
+        exp:'何かが「はじまる」と、いつかは「おわる」。「始業（しぎょう）」と「終業（しゅうぎょう）」も はんたいです。' },
+      { q:'「とても」と にた いみの ことばは？', opts:['少し','たいへん','ふつう','ちょっと'], ans:1,
+        exp:'「とても 大きい」と「たいへん 大きい」は 同じ いみです。ていどが 強いことを 表します。' },
+      { q:'「いそいで」と にた いみの ことばは？', opts:['ゆっくり','そっと','はやく','しずかに'], ans:2,
+        exp:'「いそぐ」は すばやく うごく ことです。「はやく」と 同じ いみで つかえます。' },
+      { q:'「正しい」の はんたいの ことばは？', opts:['むずかしい','まちがった','やさしい','おかしい'], ans:1,
+        exp:'あっているのが「正しい」、あっていないのが「まちがった」です。テストで 正しい こたえを えらぼう！' },
+      { q:'「夏」と なかまの ことばは どれですか？', opts:['朝・昼・夜','春・秋・冬','東・西・南・北','月・火・水・木'], ans:1,
+        exp:'春・夏・秋・冬は「きせつ（季節）」の なかまです。朝・昼・夜は 一日の 時間の なかまです。' },
+    ]
+  },
+
+  'dokkai': {
+    label:'よみとり', subject:'kokugo', type:'dokkai', count:4,
+    passages:[
+      {
+        text:'たろうくんは、まいあさ お母さんと いっしょに\n公園を さんぽします。\n公園には 大きな 木が 2本 あります。\nその 木の 下に、ベンチが 3つ あります。\nたろうくんは ベンチに すわって、\n小鳥の うたを きくのが 大すきです。',
+        questions:[
+          { q:'たろうくんは だれと さんぽを しますか？',
+            opts:['お父さん','お母さん','おじいさん','一人で'], ans:1,
+            exp:'「まいあさ お母さんと いっしょに さんぽします」と 書いてあります。' },
+          { q:'公園に ベンチは いくつ ありますか？',
+            opts:['1つ','2つ','3つ','4つ'], ans:2,
+            exp:'「ベンチが 3つ あります」と 書いてあります。木は 2本、ベンチは 3つです。まちがえないでね！' },
+        ]
+      },
+      {
+        text:'はなこさんは、としょかんで 本を 3さつ かりました。\n1さつは どうぶつの 本で、1さつは むかしばなしで、\nのこりの 1さつは 算数の もんだいしゅうです。\nはなこさんは どうぶつが 大すきなので、\nどうぶつの 本を いちばん 先に よみました。',
+        questions:[
+          { q:'はなこさんが かりた 本は ぜんぶで なんさつですか？',
+            opts:['2さつ','3さつ','4さつ','5さつ'], ans:1,
+            exp:'「本を 3さつ かりました」と 書いてあります。1＋1＋1＝3さつです。' },
+          { q:'はなこさんが いちばん 先に よんだ 本は？',
+            opts:['むかしばなし','算数の もんだいしゅう','どうぶつの 本','じゅぎょうの 本'], ans:2,
+            exp:'「どうぶつの 本を いちばん 先に よみました」と 書いてあります。大すきな ものを 先に よんだのですね。' },
+        ]
+      },
+      {
+        text:'学校の たいいくの じかんに、\n50メートル走を しました。\nたろうくんは 9びょうで はしりました。\nはなこさんは たろうくんより 1びょう おそく はしりました。\nジロウくんは はなこさんより 2びょう はやく はしりました。',
+        questions:[
+          { q:'はなこさんは なんびょうで はしりましたか？',
+            opts:['8びょう','9びょう','10びょう','11びょう'], ans:2,
+            exp:'たろうくんは 9びょう。はなこさんは「たろうくんより 1びょう おそい」ので 9＋1＝10びょうです。' },
+          { q:'3人の 中で いちばん はやく はしったのは だれですか？',
+            opts:['たろうくん','はなこさん','ジロウくん','同じ'], ans:2,
+            exp:'たろうくん9びょう、はなこさん10びょう、ジロウくんは はなこさんより 2びょう はやいので 10－2＝8びょう。いちばん はやいのは ジロウくん！' },
+        ]
+      }
+    ]
+  },
+
+  'keisan': {
+    label:'たし算・ひき算', subject:'sansu', type:'fill', count:5,
+    questions:[
+      { q:'23 ＋ 47 ＝', ans:70,  exp:'一の くらい：3＋7＝10 → 0を 書いて 1くり上げ。\n十の くらい：2＋4＋1＝7。\nこたえ 70。' },
+      { q:'56 － 28 ＝', ans:28,  exp:'一の くらい：6＜8なので 十の くらいから かりる。16－8＝8。\n十の くらい：4－2＝2。\nこたえ 28。' },
+      { q:'38 ＋ 45 ＝', ans:83,  exp:'一の くらい：8＋5＝13 → 3を 書いて 1くり上げ。\n十の くらい：3＋4＋1＝8。\nこたえ 83。' },
+      { q:'72 － 35 ＝', ans:37,  exp:'一の くらい：2＜5なので かりる。12－5＝7。\n十の くらい：6－3＝3。\nこたえ 37。' },
+      { q:'64 ＋ 27 ＝', ans:91,  exp:'一の くらい：4＋7＝11 → 1を 書いて 1くり上げ。\n十の くらい：6＋2＋1＝9。\nこたえ 91。' },
+      { q:'100 － 43 ＝', ans:57, exp:'100－40＝60、60－3＝57 と 分けて かんがえると やりやすいよ！\nこたえ 57。' },
+      { q:'19 ＋ 63 ＝', ans:82,  exp:'一の くらい：9＋3＝12 → 2を 書いて 1くり上げ。\n十の くらい：1＋6＋1＝8。\nこたえ 82。' },
+      { q:'85 － 49 ＝', ans:36,  exp:'85－50＝35、35＋1＝36 と かんがえても いいよ！\nこたえ 36。' },
+      { q:'47 ＋ 36 ＝', ans:83,  exp:'一の くらい：7＋6＝13 → 3を 書いて 1くり上げ。\n十の くらい：4＋3＋1＝8。\nこたえ 83。' },
+      { q:'93 － 67 ＝', ans:26,  exp:'一の くらい：3＜7なので かりる。13－7＝6。\n十の くらい：8－6＝2。\nこたえ 26。' },
+      { q:'58 ＋ 74 ＝', ans:132, exp:'一の くらい：8＋4＝12 → 2を 書いて 1くり上げ。\n十の くらい：5＋7＋1＝13 → 3を 書いて 1くり上げ。\nこたえ 132。' },
+      { q:'120 － 58 ＝', ans:62, exp:'120－60＝60、60＋2＝62 と かんがえても いいよ！\nこたえ 62。' },
+    ]
+  },
+
+  'kuku': {
+    label:'九 九', subject:'sansu', type:'fill', count:5,
+    questions:[
+      { q:'3 × 4 ＝', ans:12, exp:'3が 4つ分 → 3＋3＋3＋3＝12。\n3の だん：3・6・9・12・15…' },
+      { q:'7 × 6 ＝', ans:42, exp:'7の だん：7・14・21・28・35・42。\nしちろくしじゅうに！' },
+      { q:'8 × 9 ＝', ans:72, exp:'8の だん：8・16・24・32・40・48・56・64・72。\nはちくしちじゅうに！' },
+      { q:'4 × 5 ＝', ans:20, exp:'4が 5つ分 → 4＋4＋4＋4＋4＝20。\n4の だん：4・8・12・16・20。' },
+      { q:'6 × 7 ＝', ans:42, exp:'6の だん：6・12・18・24・30・36・42。\nろくしちしじゅうに！' },
+      { q:'9 × 3 ＝', ans:27, exp:'9の だん：9・18・27。\nくさんにじゅうしち！' },
+      { q:'5 × 8 ＝', ans:40, exp:'5の だん：5・10・15・20・25・30・35・40。\nごはしじゅう！' },
+      { q:'2 × 7 ＝', ans:14, exp:'2の だん：2・4・6・8・10・12・14。\nにしちじゅうし！' },
+      { q:'9 × 9 ＝', ans:81, exp:'9の だんの さいご。くくはちじゅういち！\n9の だん：9・18・27・36・45・54・63・72・81。' },
+      { q:'6 × 8 ＝', ans:48, exp:'6の だん：6・12・18・24・30・36・42・48。\nろくはしじゅうはち！' },
+      { q:'7 × 7 ＝', ans:49, exp:'7の だん：7・14・21・28・35・42・49。\nしちしちしじゅうく！' },
+      { q:'8 × 4 ＝', ans:32, exp:'8の だん：8・16・24・32。\nはちしさんじゅうに！' },
+    ]
+  },
+
+  'mondai': {
+    label:'ぶんしょうだい', subject:'sansu', type:'mc', count:5,
+    questions:[
+      { q:'りんごが 5こ あります。\n3こ たべました。\nのこりは なんこですか？',
+        opts:['1こ','2こ','3こ','8こ'], ans:1,
+        exp:'ものが「へる」ときは ひき算を つかいます。\n5－3＝2こ。' },
+      { q:'えんぴつが 8本 あります。\n4本 あげました。\nなんぼん のこりますか？',
+        opts:['2本','3本','4本','12本'], ans:2,
+        exp:'「あげた」ので ひき算。\n8－4＝4本。' },
+      { q:'1本 15円の えんぴつを 3本 かいました。\nぜんぶで いくらですか？',
+        opts:['30円','45円','18円','5円'], ans:1,
+        exp:'「同じ 数を 何かい たす」ときは かけ算。\n15×3＝45円。' },
+      { q:'バスに 6人 のっています。\nつぎの バスていで 4人 のってきました。\nぜんぶで なんにんですか？',
+        opts:['2人','8人','10人','12人'], ans:2,
+        exp:'「ふえる」ときは たし算。\n6＋4＝10人。' },
+      { q:'1ふくろに 8こ はいった あめが 4ふくろ あります。\nぜんぶで なんこですか？',
+        opts:['12こ','24こ','32こ','16こ'], ans:2,
+        exp:'1ふくろ 8こ × 4ふくろ ＝ かけ算！\n8×4＝32こ。' },
+      { q:'子どもが 24人 います。\n男の子が 13人 です。\n女の子は なんにんですか？',
+        opts:['9人','10人','11人','37人'], ans:2,
+        exp:'ぜんぶから 男の子を ひくと 女の子の 数が わかります。\n24－13＝11人。' },
+      { q:'たろうくんは 1日に 4ページずつ 本を よみます。\n7日間で なんページ よみますか？',
+        opts:['11ページ','21ページ','28ページ','35ページ'], ans:2,
+        exp:'1日 4ページ × 7日 ＝ かけ算！\n4×7＝28ページ。' },
+      { q:'クッキーが 36まい あります。\n4人で 同じ数ずつ わけると、\n1人 なんまいに なりますか？',
+        opts:['6まい','7まい','8まい','9まい'], ans:3,
+        exp:'「同じ数ずつ わける」ときは わり算。\n36÷4＝9まい。' },
+      { q:'本が 3だんの たなに 同じ数ずつ ならんでいます。\nぜんぶで 18さつ あります。\n1だんには なんさつ ありますか？',
+        opts:['3さつ','6さつ','9さつ','15さつ'], ans:1,
+        exp:'18さつを 3だんに 分けるから わり算。\n18÷3＝6さつ。' },
+    ]
+  },
+
+  'zukei': {
+    label:'図 形', subject:'sansu', type:'mc', count:5,
+    questions:[
+      { q:'三角形の 角は いくつですか？',
+        opts:['1つ','2つ','3つ','4つ'], ans:2,
+        exp:'三角形には 角が 3つ あります。「三（さん）」は 3という いみです。辺（へん）も 3本あります。' },
+      { q:'四角形の へん（辺）は なんぼんですか？',
+        opts:['2本','3本','4本','5本'], ans:2,
+        exp:'四角形には へんが 4本 あります。「四（よん）」は 4という いみです。角も 4つあります。' },
+      { q:'正方形の 4つの へんの 長さは どうなっていますか？',
+        opts:['みんな ちがう','2つずつ 同じ','3つが 同じ','みんな 同じ'], ans:3,
+        exp:'正方形は 4つの へんが すべて 同じ 長さです。「正（せい）」は きちんと ととのっている という いみです。' },
+      { q:'長方形の 角は ぜんぶで いくつですか？',
+        opts:['2つ','3つ','4つ','6つ'], ans:2,
+        exp:'長方形の 4つの 角は すべて 直角（ちょっかく）です。直角は 90どの 角です。' },
+      { q:'三角形を 2つ 合わせると、どんな 形に なりますか？',
+        opts:['円','三角形','四角形','五角形'], ans:2,
+        exp:'三角形を 2つ ぴったり 合わせると 四角形に なります。ためしに 紙を 切って やってみよう！' },
+      { q:'向かい合う へんの 長さが 同じで、\n4つの 角が すべて 直角な 形は？',
+        opts:['正方形','長方形','三角形','円'], ans:1,
+        exp:'向かい合う へんが 同じ 長さで、4つの 角が 直角（90ど）な 形が「長方形」です。' },
+      { q:'まっすぐな 線だけで かこまれた 形を なんと いいますか？',
+        opts:['円','多かくけい','らせん','曲線'], ans:1,
+        exp:'まっすぐな 線だけで かこまれた 形を「多かくけい（多角形）」と いいます。三角形・四角形も 多かくけいです。' },
+      { q:'正三角形の 3つの へんの 長さは？',
+        opts:['みんな ちがう','2つだけ 同じ','みんな 同じ','1つだけ 同じ'], ans:2,
+        exp:'「正（せい）」が つく 形は すべての へんが 同じ 長さです。正三角形・正方形 など。' },
+      { q:'円の 中心から 円の まわりまでの きょりを なんと いいますか？',
+        opts:['ちょっけい（直径）','はんけい（半径）','へん（辺）','角'], ans:1,
+        exp:'中心から 円の まわりまでの きょりが「はんけい（半径）」です。円のはしからはしまでが「ちょっけい（直径）」で、はんけいの 2ばいです。' },
+    ]
+  }
+
+};
+
+// ===================================================
+// STATE
+// ===================================================
+let state = {
+  quizType:null, questions:[], current:0, score:0, answers:[], answered:false, parentScreen:null
+};
+
+// ===================================================
+// API CONFIG
+// バックエンドサーバーのURLを設定してください。
+// ローカル開発: 'http://localhost:5000'
+// 本番環境:    'https://your-app.railway.app' など
+// 設定しない場合は localStorage のみで動作します。
+// ===================================================
+const API_BASE_URL = '';  // Railway 同一ドメインなので相対パス
+
+// ===================================================
+// STORAGE
+// ===================================================
+const DEVICE_KEY   = 'zentouho_device_id';
+const RECORDS_KEY  = 'zentouho_records';
+const NICKNAME_KEY = 'zentouho_nickname';
+
+function uuid4() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+function getDeviceId() {
+  let id = localStorage.getItem(DEVICE_KEY);
+  if (!id) { id = uuid4(); localStorage.setItem(DEVICE_KEY, id); }
+  return id;
+}
+function getNickname()      { return localStorage.getItem(NICKNAME_KEY) || ''; }
+function setNickname(name)  { localStorage.setItem(NICKNAME_KEY, name.trim()); }
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]'); }
+  catch { return []; }
+}
+function saveRecord(quizType, score, total) {
+  const bank    = QB[quizType];
+  const payload = {
+    deviceId: getDeviceId(),
+    nickname: getNickname(),
+    date:     new Date().toISOString(),
+    quizType,
+    label:    bank.label,
+    subject:  bank.subject,
+    score,
+    total,
+  };
+
+  // localStorage に保存
+  const records = getRecords();
+  records.push({ id: uuid4(), ...payload });
+  if (records.length > 500) records.splice(0, records.length - 500);
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+
+  // サーバーにも送信（API_BASE_URL が設定されている場合）
+  if (API_BASE_URL) {
+    fetch(API_BASE_URL + '/api/result', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    }).catch(() => { /* オフライン時は無視 */ });
+  }
+}
+
+// ===================================================
+// NICKNAME UI
+// ===================================================
+function renderNicknameSection() {
+  const wrap = document.getElementById('nickname-wrap');
+  const name = getNickname();
+  if (!name) {
+    wrap.innerHTML = `
+      <div class="nickname-setup-card">
+        <p>👤 ニックネームを きめよう！</p>
+        <div class="nick-input-row">
+          <input id="nick-input" class="nick-input" type="text" maxlength="10" placeholder="なまえを にゅうりょく">
+          <button class="nick-save-btn" onclick="saveNickname()">けってい！</button>
+        </div>
+      </div>`;
+    const inp = document.getElementById('nick-input');
+    inp && inp.addEventListener('keydown', e => { if (e.key === 'Enter') saveNickname(); });
+  } else {
+    const greetings = ['きょうも がんばろう！','いっしょに べんきょうしよう！','チャレンジ まってるよ！'];
+    const sub = greetings[Math.floor(Math.random() * greetings.length)];
+    wrap.innerHTML = `
+      <div class="nickname-greeting">
+        <span class="greeting-wave">👋</span>
+        <div class="greeting-msg">こんにちは、<strong>${escHtml(name)}</strong>さん！<br><span style="font-size:.82rem;color:var(--gray);font-weight:normal">${sub}</span></div>
+        <button class="edit-nick-btn" onclick="promptNicknameEdit()">✏️ へんこう</button>
+      </div>`;
+  }
+}
+function saveNickname() {
+  const inp = document.getElementById('nick-input');
+  if (!inp) return;
+  const val = inp.value.trim();
+  if (!val) { inp.focus(); return; }
+  setNickname(val);
+  renderNicknameSection();
+}
+function promptNicknameEdit() {
+  const cur = getNickname();
+  const val = prompt('ニックネームを かえよう！\n（10文字 いないで にゅうりょく）', cur);
+  if (val === null) return;
+  const trimmed = val.trim().slice(0, 10);
+  if (trimmed) { setNickname(trimmed); renderNicknameSection(); }
+}
+function escHtml(s) {
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+// ===================================================
+// NAVIGATION
+// ===================================================
+function showScreen(id) {
+  document.querySelectorAll('.screen').forEach(s => s.classList.remove('active'));
+  document.getElementById('screen-' + id).classList.add('active');
+}
+function setBreadcrumb(items) {
+  const bc = document.getElementById('breadcrumb');
+  bc.innerHTML = items.map((item, i) => {
+    const sep = i > 0 ? '<span class="sep"> › </span>' : '';
+    if (item.action) return sep + `<span onclick="${item.action}">${item.label}</span>`;
+    return sep + `<span style="color:var(--text);font-weight:bold">${item.label}</span>`;
+  }).join('');
+}
+function goHome() {
+  setBreadcrumb([{label:'🏠 ホーム', action:null}]);
+  renderNicknameSection();
+  showScreen('home');
+}
+function showKokugoMenu() {
+  setBreadcrumb([{label:'🏠 ホーム',action:'goHome()'},{label:'📖 国語',action:null}]);
+  state.parentScreen = 'kokugo';
+  showScreen('kokugo');
+}
+function showSansuMenu() {
+  setBreadcrumb([{label:'🏠 ホーム',action:'goHome()'},{label:'🔢 算数',action:null}]);
+  state.parentScreen = 'sansu';
+  showScreen('sansu');
+}
+function backToMenu() {
+  if (state.parentScreen === 'kokugo') showKokugoMenu();
+  else showSansuMenu();
+}
+
+// ===================================================
+// QUIZ START
+// ===================================================
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+function startQuiz(type) {
+  const bank = QB[type];
+  state = { quizType:type, questions:[], current:0, score:0, answers:[], answered:false, parentScreen:state.parentScreen };
+
+  if (type === 'dokkai') {
+    const flat = [];
+    bank.passages.forEach(p => p.questions.forEach(q => flat.push({ passage:p.text, ...q })));
+    state.questions = flat.slice(0, bank.count);
+  } else {
+    state.questions = shuffle(bank.questions).slice(0, bank.count);
+  }
+
+  const subj = bank.subject;
+  const parentLabel  = subj === 'kokugo' ? '📖 国語' : '🔢 算数';
+  const parentAction = subj === 'kokugo' ? 'showKokugoMenu()' : 'showSansuMenu()';
+  setBreadcrumb([
+    {label:'🏠 ホーム', action:'goHome()'},
+    {label:parentLabel,  action:parentAction},
+    {label:bank.label,   action:null}
+  ]);
+  const lbl = document.getElementById('quiz-label');
+  lbl.className = 'quiz-label ' + subj;
+  lbl.textContent = (subj === 'kokugo' ? '📖 ' : '🔢 ') + bank.label;
+  document.getElementById('progress-fill').className = 'progress-fill ' + subj;
+  showScreen('quiz');
+  renderQuestion();
+}
+
+// ===================================================
+// RENDER QUESTION
+// ===================================================
+function renderQuestion() {
+  const total = state.questions.length;
+  const idx   = state.current;
+  const q     = state.questions[idx];
+  const bank  = QB[state.quizType];
+  state.answered = false;
+
+  document.getElementById('progress-text').textContent = (idx + 1) + ' / ' + total;
+  document.getElementById('progress-fill').style.width = (idx / total * 100) + '%';
+  document.getElementById('question-num').textContent  = 'もんだい ' + (idx + 1);
+  document.getElementById('question-text').textContent = q.q;
+
+  // passage
+  const pa = document.getElementById('passage-area');
+  pa.innerHTML = q.passage
+    ? '<div class="passage-box">' + q.passage.split('\n').map(l => '<p>' + escHtml(l) + '</p>').join('') + '</div>'
+    : '';
+
+  document.getElementById('options-area').innerHTML = '';
+  document.getElementById('input-area').innerHTML   = '';
+
+  const qtype = bank.type === 'dokkai' ? 'mc' : bank.type;
+  if (qtype === 'mc') {
+    const grid = document.createElement('div');
+    grid.className = 'options-grid';
+    q.opts.forEach((opt, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = opt;
+      btn.id = 'opt-' + i;
+      btn.onclick = () => selectOption(i);
+      grid.appendChild(btn);
+    });
+    document.getElementById('options-area').appendChild(grid);
+  } else {
+    document.getElementById('input-area').innerHTML =
+      '<div class="input-wrap">' +
+      '<input class="answer-input" type="number" id="fill-input" placeholder="こたえ" min="0" max="9999">' +
+      '<button class="submit-btn" id="submit-btn" onclick="checkFill()">こたえる</button>' +
+      '</div>';
+    const inp = document.getElementById('fill-input');
+    inp.focus();
+    inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkFill(); });
+  }
+
+  // reset feedback & exp
+  document.getElementById('feedback-box').className = 'feedback-box';
+  document.getElementById('exp-box').className      = 'exp-box';
+  document.getElementById('exp-body').textContent   = '';
+  const nb = document.getElementById('next-btn');
+  nb.className = 'next-btn';
+  nb.textContent = idx === total - 1 ? 'けっかを 見る 🏆' : 'つぎへ →';
+}
+
+// ===================================================
+// ANSWER HANDLING
+// ===================================================
+function selectOption(selected) {
+  if (state.answered) return;
+  state.answered = true;
+  const q = state.questions[state.current];
+  const isCorrect = selected === q.ans;
+  q.opts.forEach((_, i) => {
+    const btn = document.getElementById('opt-' + i);
+    btn.disabled = true;
+    if (i === q.ans) btn.classList.add('correct');
+    else if (i === selected && !isCorrect) btn.classList.add('wrong');
+  });
+  recordAnswer(isCorrect, q.opts[selected], q.opts[q.ans], q);
+  showFeedback(isCorrect, q);
+}
+function checkFill() {
+  if (state.answered) return;
+  const inp = document.getElementById('fill-input');
+  const val = parseInt(inp.value, 10);
+  if (isNaN(val)) { inp.focus(); return; }
+  state.answered = true;
+  const q = state.questions[state.current];
+  const isCorrect = val === q.ans;
+  inp.classList.add(isCorrect ? 'correct' : 'wrong');
+  inp.disabled = true;
+  document.getElementById('submit-btn').disabled = true;
+  if (!isCorrect) {
+    const hint = document.createElement('div');
+    hint.style.cssText = 'margin-top:8px;font-size:.86rem;color:#065F46;background:#D1FAE5;padding:8px 12px;border-radius:10px;';
+    hint.textContent = 'こたえ：' + q.ans;
+    document.getElementById('input-area').appendChild(hint);
+  }
+  recordAnswer(isCorrect, String(val), String(q.ans), q);
+  showFeedback(isCorrect, q);
+}
+function recordAnswer(isCorrect, userAns, correctAns, q) {
+  if (isCorrect) state.score++;
+  state.answers.push({ correct:isCorrect, question:q.q.replace(/\n/g,' '), userAns, correctAns });
+}
+function showFeedback(isCorrect, q) {
+  const fb   = document.getElementById('feedback-box');
+  const icon = document.getElementById('fb-icon');
+  const text = document.getElementById('fb-text');
+  if (isCorrect) {
+    fb.className = 'feedback-box correct-fb show';
+    icon.textContent = '⭕';
+    const msgs = ['せいかい！すごい！','すばらしい！','よくできました！','かんぺき！','その調子！'];
+    text.textContent = msgs[Math.floor(Math.random() * msgs.length)];
+  } else {
+    fb.className = 'feedback-box wrong-fb show';
+    icon.textContent = '❌';
+    text.textContent = 'ざんねん！ もう一度 かんがえてみよう。';
+  }
+  // explanation
+  if (q.exp) {
+    document.getElementById('exp-body').textContent = q.exp;
+    document.getElementById('exp-box').className = 'exp-box show';
+  }
+  document.getElementById('next-btn').className = 'next-btn show';
+}
+
+// ===================================================
+// NEXT / RESULT
+// ===================================================
+function nextQuestion() {
+  state.current++;
+  if (state.current >= state.questions.length) showResult();
+  else renderQuestion();
+}
+function showResult() {
+  const score = state.score, total = state.questions.length;
+  const pct = score / total;
+  document.getElementById('progress-fill').style.width = '100%';
+  saveRecord(state.quizType, score, total);
+
+  let icon, title, message;
+  if (pct === 1)     { icon='🏆'; title='かんぺき！';    message='ぜんもん せいかい！\nすごい！きみは 天才だ！'; }
+  else if (pct>=.8)  { icon='🌟'; title='すばらしい！';  message='ほぼ かんぺき！\nもう少しで 満てんだよ！'; }
+  else if (pct>=.6)  { icon='😊'; title='よくできました！'; message='なかなか いいね！\nまちがえた もんだいを もう一度 やってみよう！'; }
+  else if (pct>=.4)  { icon='💪'; title='もう少し！';    message='もう一度 チャレンジして\nしっかり おぼえよう！'; }
+  else               { icon='📚'; title='れんしゅうしよう！'; message='むずかしかったね。\nかいせつを 読んで もう一度！'; }
+
+  const name = getNickname();
+  const nameStr = name ? name + 'さん、' : '';
+
+  document.getElementById('result-icon').textContent  = icon;
+  document.getElementById('result-title').textContent = nameStr + title;
+  document.getElementById('result-score').innerHTML   = score + '<span class="total"> / ' + total + '</span>';
+  const stars = Math.round(pct * 5);
+  document.getElementById('result-stars').textContent   = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  document.getElementById('result-message').textContent = message;
+
+  document.getElementById('result-breakdown').innerHTML =
+    '<div class="breakdown-title">もんだいの ふりかえり</div>' +
+    state.answers.map(a =>
+      '<div class="breakdown-item"><span class="breakdown-icon">' + (a.correct ? '⭕' : '❌') + '</span>' +
+      '<span>' + escHtml(a.question) + (a.correct ? '' : '　→ こたえ：' + escHtml(a.correctAns)) + '</span></div>'
+    ).join('');
+
+  showScreen('result');
+}
+function retryQuiz() { startQuiz(state.quizType); }
+
+// ===================================================
+// RECORDS SCREEN
+// ===================================================
+function showRecords() {
+  setBreadcrumb([{label:'🏠 ホーム',action:'goHome()'},{label:'📊 きろく',action:null}]);
+  state.parentScreen = null;
+
+  // nickname area
+  const nickArea = document.getElementById('nick-record-area');
+  const name = getNickname();
+  const did  = getDeviceId().slice(0, 8) + '…';
+  nickArea.innerHTML = `
+    <div class="nick-record-box">
+      <div>
+        <div class="nick-record-name">${name ? '👤 ' + escHtml(name) + ' さん' : '👤 なまえ みせっていです'}</div>
+        <div class="nick-record-id">ID: ${did}</div>
+      </div>
+      <button class="nick-edit-btn" onclick="promptNicknameEdit(); document.getElementById('nick-record-area').innerHTML=''; showRecords();">✏️ なまえを かえる</button>
+    </div>`;
+
+  renderRecordsContent();
+  showScreen('records');
+}
+
+function renderRecordsContent() {
+  const records = getRecords();
+  const el = document.getElementById('records-content');
+  if (records.length === 0) {
+    el.innerHTML = '<div class="empty-records"><div class="empty-icon">📭</div><p>まだ きろくが ありません。<br>もんだいに チャレンジしよう！</p></div>';
+    return;
+  }
+  const totalQ = records.reduce((s,r) => s + r.total, 0);
+  const totalC = records.reduce((s,r) => s + r.score, 0);
+  const pctAll = totalQ > 0 ? Math.round(totalC / totalQ * 100) : 0;
+  const days   = new Set(records.map(r => r.date.slice(0,10))).size;
+
+  let html = '<div class="stats-grid">'
+    + sCard(records.length + '回', 'チャレンジした 数')
+    + sCard(pctAll + '%', '正かいの わりあい')
+    + sCard(days + '日', 'べんきょうした 日の 数')
+    + '</div>';
+
+  const cats    = Object.keys(QB);
+  const kokugo  = cats.filter(k => QB[k].subject === 'kokugo');
+  const sansu   = cats.filter(k => QB[k].subject === 'sansu');
+
+  html += '<div class="section-title">📖 国語 カテゴリ別 さいこうスコア</div><div class="category-list">';
+  html += kokugo.map(k => catRow(k, records, 'kokugo')).join('');
+  html += '</div>';
+  html += '<div class="section-title">🔢 算数 カテゴリ別 さいこうスコア</div><div class="category-list">';
+  html += sansu.map(k => catRow(k, records, 'sansu')).join('');
+  html += '</div>';
+
+  const recent = [...records].reverse().slice(0, 15);
+  html += '<div class="section-title">さいきんの きろく（さいしん 15けん）</div><div class="history-list">';
+  html += recent.map(r => {
+    const icon  = QB[r.quizType] && QB[r.quizType].subject === 'kokugo' ? '📖' : '🔢';
+    const subj  = QB[r.quizType] ? QB[r.quizType].subject : 'sansu';
+    const pct   = Math.round(r.score / r.total * 100);
+    const dt    = new Date(r.date);
+    const ds    = dt.getFullYear() + '/' + pad(dt.getMonth()+1) + '/' + pad(dt.getDate())
+      + ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    return '<div class="history-item">'
+      + '<div class="history-badge ' + subj + '">' + icon + '</div>'
+      + '<div class="history-info"><div class="history-label">' + escHtml(r.label) + '</div>'
+      + '<div class="history-date">' + ds + '</div></div>'
+      + '<div class="history-score"><div class="hs-val">' + r.score + '/' + r.total + '</div>'
+      + '<div class="hs-pct">' + pct + '%</div></div>'
+      + '</div>';
+  }).join('');
+  html += '</div>';
+  html += '<button class="clear-btn" onclick="clearRecords()">🗑 きろくを ぜんぶ けす</button>';
+  el.innerHTML = html;
+}
+
+function sCard(val, label) {
+  return '<div class="stat-card"><div class="stat-val">' + val + '</div><div class="stat-label">' + label + '</div></div>';
+}
+function catRow(quizType, records, subject) {
+  const bank = QB[quizType];
+  const mine = records.filter(r => r.quizType === quizType);
+  if (mine.length === 0) {
+    return '<div class="category-row">'
+      + '<div class="category-row-top"><span class="category-row-name">' + bank.label + '</span>'
+      + '<span class="category-row-score">まだ ちょうせんしていません</span></div>'
+      + '<div class="category-bar-bg"><div class="category-bar-fill ' + subject + '" style="width:0%"></div></div>'
+      + '<div class="category-row-stars">☆☆☆☆☆</div><div class="category-row-count">0回</div>'
+      + '</div>';
+  }
+  const best   = Math.max(...mine.map(r => r.score / r.total));
+  const pct    = Math.round(best * 100);
+  const stars  = Math.round(best * 5);
+  const avgPct = Math.round(mine.reduce((s,r)=>s+r.score/r.total,0)/mine.length*100);
+  return '<div class="category-row">'
+    + '<div class="category-row-top"><span class="category-row-name">' + bank.label + '</span>'
+    + '<span class="category-row-score">さいこう ' + pct + '% ／ へいきん ' + avgPct + '%</span></div>'
+    + '<div class="category-bar-bg"><div class="category-bar-fill ' + subject + '" style="width:' + pct + '%"></div></div>'
+    + '<div class="category-row-stars">' + '★'.repeat(stars) + '☆'.repeat(5 - stars) + '</div>'
+    + '<div class="category-row-count">' + mine.length + '回 チャレンジ</div>'
+    + '</div>';
+}
+function pad(n) { return String(n).padStart(2,'0'); }
+function clearRecords() {
+  if (!confirm('きろくを ぜんぶ けしますか？\nこの そうさは もとに もどせません。')) return;
+  localStorage.removeItem(RECORDS_KEY);
+  renderRecordsContent();
+}
+
+// ===================================================
+// INIT
+// ===================================================
+setBreadcrumb([{label:'🏠 ホーム', action:null}]);
+getDeviceId();
+renderNicknameSection();
+</script>
+</body>
+</html>

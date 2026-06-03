@@ -5,7 +5,7 @@ from functools import wraps
 
 from dotenv import load_dotenv
 import secrets
-from flask import Flask, jsonify, render_template_string, request, session, redirect, url_for
+from flask import Flask, jsonify, render_template_string, request, session, redirect, url_for, send_from_directory
 from flask_cors import CORS
 
 load_dotenv()
@@ -118,6 +118,11 @@ def save_result():
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"})
+
+
+@app.route("/")
+def serve_quiz():
+    return send_from_directory("static", "index.html")
 
 
 # ─────────────────────────────────────────────
