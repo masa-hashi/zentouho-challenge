@@ -436,29 +436,6 @@ ADMIN_HTML = """<!DOCTYPE html>
     }
     .danger-btn:hover{background:#FEE2E2}
 
-    /* modal */
-    .modal-overlay{
-      display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);
-      z-index:999;align-items:center;justify-content:center
-    }
-    .modal-overlay.show{display:flex}
-    .modal-box{
-      background:#fff;border-radius:20px;padding:28px 28px 24px;
-      max-width:400px;width:90%;box-shadow:0 12px 40px rgba(0,0,0,.2)
-    }
-    .modal-title{font-size:1.1rem;font-weight:bold;margin-bottom:10px}
-    .modal-body{font-size:.9rem;color:#374151;line-height:1.6;margin-bottom:20px}
-    .modal-actions{display:flex;gap:10px;justify-content:flex-end}
-    .modal-cancel{
-      padding:9px 20px;border:1.5px solid #E5E7EB;background:#F9FAFB;
-      border-radius:10px;cursor:pointer;font-size:.88rem;font-family:inherit
-    }
-    .modal-cancel:hover{background:#F3F4F6}
-    .modal-confirm{
-      padding:9px 20px;border:none;background:#EF4444;color:#fff;
-      border-radius:10px;cursor:pointer;font-size:.88rem;font-weight:bold;font-family:inherit
-    }
-    .modal-confirm:hover{background:#DC2626}
 
     @media(max-width:700px){
       .stats-row{grid-template-columns:repeat(2,1fr)}
@@ -657,18 +634,6 @@ ADMIN_HTML = """<!DOCTYPE html>
     {% endif %}
   </div>
 
-  <!-- Confirm modal -->
-  <div class="modal-overlay" id="modal">
-    <div class="modal-box">
-      <div class="modal-title" id="modal-title"></div>
-      <div class="modal-body"  id="modal-body"></div>
-      <div class="modal-actions">
-        <button class="modal-cancel"  onclick="closeModal()">キャンセル</button>
-        <button class="modal-confirm" id="modal-confirm-btn">削除する</button>
-      </div>
-    </div>
-  </div>
-
   <!-- Danger zone -->
   <div class="danger-zone">
     <div class="section-head" style="margin-bottom:12px">
@@ -760,40 +725,29 @@ function filterUsers(){
   });
 }
 
-// ── Modal helpers ──
-function openModal(title, body, onConfirm){
-  document.getElementById('modal-title').textContent = title;
-  document.getElementById('modal-body').textContent  = body;
-  document.getElementById('modal-confirm-btn').onclick = ()=>{ closeModal(); onConfirm(); };
-  document.getElementById('modal').classList.add('show');
-}
-function closeModal(){
-  document.getElementById('modal').classList.remove('show');
+// ── Delete functions ──
+function doFetch(url, method){
+  return fetch(url, {method: method, credentials: 'same-origin'})
+    .then(r => r.json())
+    .then(d => { if(d.ok){ location.reload(); } else { alert('削除に失敗しました'); } })
+    .catch(() => alert('通信エラーが発生しました'));
 }
 
-// ── Delete functions ──
 function delResult(id, e){
   e.stopPropagation();
-  openModal('記録を削除', 'この1件の記録を削除します。この操作は取り消せません。', ()=>{
-    fetch('/api/admin/result/'+id, {method:'DELETE', credentials:'same-origin'})
-      .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
-  });
+  if(!window.confirm('この記録を削除しますか？\nこの操作は取り消せません。')) return;
+  doFetch('/api/admin/result/' + id, 'DELETE');
 }
 
 function delUser(did, nick){
-  openModal('ユーザーデータを削除',
-    (nick||'このユーザー')+'の記録をすべて削除します。この操作は取り消せません。', ()=>{
-    fetch('/api/admin/user/'+encodeURIComponent(did), {method:'DELETE', credentials:'same-origin'})
-      .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
-  });
+  var name = nick || 'このユーザー';
+  if(!window.confirm(name + 'のデータをすべて削除しますか？\nこの操作は取り消せません。')) return;
+  doFetch('/api/admin/user/' + encodeURIComponent(did), 'DELETE');
 }
 
 function delAll(){
-  openModal('⚠️ 全データを削除',
-    'すべてのユーザーの全記録を削除します。\nこの操作は絶対に取り消せません。\n削除前に CSV エクスポートを推奨します。', ()=>{
-    fetch('/api/admin/all', {method:'DELETE', credentials:'same-origin'})
-      .then(r=>r.json()).then(d=>{ if(d.ok) location.reload(); });
-  });
+  if(!window.confirm('全データを削除しますか？\n\nこの操作は取り消せません。\n削除前に CSV エクスポートを推奨します。')) return;
+  doFetch('/api/admin/all', 'DELETE');
 }
 
 // ── CSV export ──

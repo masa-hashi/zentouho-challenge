@@ -809,14 +809,12 @@ function saveRecord(quizType, score, total) {
   if (records.length > 500) records.splice(0, records.length - 500);
   localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
 
-  // サーバーにも送信（API_BASE_URL が設定されている場合）
-  if (API_BASE_URL) {
-    fetch(API_BASE_URL + '/api/result', {
-      method:  'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body:    JSON.stringify(payload),
-    }).catch(() => { /* オフライン時は無視 */ });
-  }
+  // サーバーに送信（API_BASE_URL='' の場合は相対パス /api/result）
+  fetch(API_BASE_URL + '/api/result', {
+    method:  'POST',
+    headers: { 'Content-Type': 'application/json' },
+    body:    JSON.stringify(payload),
+  }).catch(() => {});
 }
 
 // ===================================================
