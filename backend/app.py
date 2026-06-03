@@ -65,7 +65,7 @@ def admin_required(f):
         return f(*args, **kwargs)
     return decorated
 
-@app.route("/admin/login", methods=["GET", "POST"])
+@app.route("/api/admin/login", methods=["GET", "POST"])
 def admin_login():
     error = ""
     if request.method == "POST":
@@ -76,7 +76,7 @@ def admin_login():
         error = "パスワードが違います。"
     return render_template_string(LOGIN_HTML, error=error)
 
-@app.route("/admin/logout")
+@app.route("/api/admin/logout")
 def admin_logout():
     session.clear()
     return redirect(url_for("admin_login"))
@@ -123,7 +123,7 @@ def health():
 # ─────────────────────────────────────────────
 # Admin dashboard
 # ─────────────────────────────────────────────
-@app.route("/admin")
+@app.route("/api/admin")
 @admin_required
 def admin_dashboard():
     conn = get_db()
@@ -245,7 +245,7 @@ LOGIN_HTML = """<!DOCTYPE html>
   <h1>🔐 管理画面</h1>
   <p class="sub">パスワードを入力してください</p>
   {% if error %}<p class="error">{{ error }}</p>{% endif %}
-  <form method="POST" action="/admin/login">
+  <form method="POST" action="/api/admin/login">
     <input type="password" name="password" placeholder="パスワード" autofocus>
     <button type="submit">ログイン</button>
   </form>
@@ -390,8 +390,8 @@ ADMIN_HTML = """<!DOCTYPE html>
 <header>
   <h1>🎓 全統小チャレンジ　管理ダッシュボード</h1>
   <div class="header-right">
-    <a href="/admin">↻ 更新</a>
-    <a href="/admin/logout">🔓 ログアウト</a>
+    <a href="/api/admin">↻ 更新</a>
+    <a href="/api/admin/logout">🔓 ログアウト</a>
   </div>
 </header>
 
