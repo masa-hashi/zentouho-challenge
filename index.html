@@ -716,6 +716,15 @@ let state = {
 };
 
 // ===================================================
+// API CONFIG
+// バックエンドサーバーのURLを設定してください。
+// ローカル開発: 'http://localhost:5000'
+// 本番環境:    'https://your-app.railway.app' など
+// 設定しない場合は localStorage のみで動作します。
+// ===================================================
+const API_BASE_URL = '';   // ← デプロイ後にサーバーURLを入力
+
+// ===================================================
 // STORAGE
 // ===================================================
 const DEVICE_KEY   = 'zentouho_device_id';
@@ -742,11 +751,32 @@ function getRecords() {
   catch { return []; }
 }
 function saveRecord(quizType, score, total) {
+  const bank    = QB[quizType];
+  const payload = {
+    deviceId: getDeviceId(),
+    nickname: getNickname(),
+    date:     new Date().toISOString(),
+    quizType,
+    label:    bank.label,
+    subject:  bank.subject,
+    score,
+    total,
+  };
+
+  // localStorage に保存
   const records = getRecords();
-  const bank = QB[quizType];
-  records.push({ id:uuid4(), deviceId:getDeviceId(), date:new Date().toISOString(), quizType, label:bank.label, subject:bank.subject, score, total });
+  records.push({ id: uuid4(), ...payload });
   if (records.length > 500) records.splice(0, records.length - 500);
   localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+
+  // サーバーにも送信（API_BASE_URL が設定されている場合）
+  if (API_BASE_URL) {
+    fetch(API_BASE_URL + '/api/result', {
+      method:  'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body:    JSON.stringify(payload),
+    }).catch(() => { /* オフライン時は無視 */ });
+  }
 }
 
 // ===================================================
