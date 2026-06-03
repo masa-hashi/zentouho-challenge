@@ -461,6 +461,18 @@
         <div class="card-sub">ならべ方・えらび方を かんがえよう</div>
         <div class="card-questions">5もん</div>
       </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('nagasa')">
+        <div class="card-big-icon">📏</div>
+        <div class="card-name">長さ・重さ・かさ</div>
+        <div class="card-sub">たんいの かんさんを れんしゅうしよう</div>
+        <div class="card-questions">6もん</div>
+      </button>
+      <button class="menu-card sansu-card" onclick="startQuiz('graph')">
+        <div class="card-big-icon">📊</div>
+        <div class="card-name">グラフ・表</div>
+        <div class="card-sub">グラフを よんで こたえよう</div>
+        <div class="card-questions">5もん</div>
+      </button>
     </div>
   </div>
 </div>
@@ -580,6 +592,31 @@ function netSVG(cells) {
     if(cell.n) out+='<text x="'+(x+sz/2)+'" y="'+(y+sz/2+5)+'" text-anchor="middle" font-size="13" font-weight="bold" fill="#1a3a5c">'+cell.n+'</text>';
   });
   return '<svg width="'+w+'" height="'+h+'" viewBox="0 0 '+w+' '+h+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">'+out+'</svg>';
+}
+
+function barSVG(bars, maxV, title) {
+  var W=240,H=165,lp=34,rp=8,tp=18,bp=32;
+  var cW=W-lp-rp,cH=H-tp-bp,n=bars.length,bw=Math.min(32,(cW/n)*0.6);
+  var cols=['#E85D75','#3B82F6','#F59E0B','#10B981','#8B5CF6','#EF4444'];
+  var s='<svg width="'+W+'" height="'+H+'" viewBox="0 0 '+W+' '+H+'" xmlns="http://www.w3.org/2000/svg" style="display:block;margin:0 auto">';
+  s+='<rect width="'+W+'" height="'+H+'" fill="#F8FAFC" rx="8"/>';
+  if(title)s+='<text x="'+(W/2)+'" y="12" text-anchor="middle" font-size="9.5" font-weight="bold" fill="#374151">'+title+'</text>';
+  for(var v=0;v<=maxV;v+=2){
+    var gy=H-bp-(v/maxV)*cH;
+    s+='<line x1="'+lp+'" y1="'+gy+'" x2="'+(W-rp)+'" y2="'+gy+'" stroke="#E5E7EB" stroke-width="0.8"/>';
+    s+='<text x="'+(lp-3)+'" y="'+(gy+3.5)+'" text-anchor="end" font-size="8.5" fill="#6B7280">'+v+'</text>';
+  }
+  s+='<line x1="'+lp+'" y1="'+tp+'" x2="'+lp+'" y2="'+(H-bp)+'" stroke="#9CA3AF" stroke-width="1.2"/>';
+  s+='<line x1="'+lp+'" y1="'+(H-bp)+'" x2="'+(W-rp)+'" y2="'+(H-bp)+'" stroke="#9CA3AF" stroke-width="1.2"/>';
+  var step=cW/n;
+  bars.forEach(function(d,i){
+    var cx=lp+step*(i+0.5),bH=(d.val/maxV)*cH;
+    var bx=cx-bw/2,by=H-bp-bH;
+    s+='<rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw+'" height="'+bH.toFixed(1)+'" fill="'+(d.color||cols[i%cols.length])+'" rx="2"/>';
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(by-2).toFixed(1)+'" text-anchor="middle" font-size="9" font-weight="bold" fill="#111">'+d.val+'</text>';
+    s+='<text x="'+cx.toFixed(1)+'" y="'+(H-bp+11).toFixed(1)+'" text-anchor="middle" font-size="8.5" fill="#374151">'+d.label+'</text>';
+  });
+  return s+'</svg>';
 }
 const QB = {
 
@@ -1090,6 +1127,95 @@ const QB = {
     ]
   }
 
+  ,
+
+  'nagasa': {
+    label:'長さ・重さ・かさ', subject:'sansu', type:'mc', count:6,
+    questions:[
+      { q:'1m は なんcm ですか？', opts:['10cm','100cm','1000cm','10000cm'], ans:1, exp:'1m＝100cm。ものさしの 1mは 100の めもりに なります。' },
+      { q:'1km は なんm ですか？', opts:['10m','100m','1000m','10000m'], ans:2, exp:'1km＝1000m。「キロ（k）」は 1000ばいを 表します。' },
+      { q:'1kg は なんg ですか？', opts:['10g','100g','1000g','10000g'], ans:2, exp:'1kg＝1000g。スーパーで 売っている 1kgの お肉は 1000gです。' },
+      { q:'1L は なんdL ですか？', opts:['2dL','5dL','10dL','100dL'], ans:2, exp:'1L＝10dL。牛にゅう 1Lは 10dL分 あります。' },
+      { q:'1dL は なんmL ですか？', opts:['10mL','100mL','1000mL','10mL'], ans:1, exp:'1dL＝100mL。「デシ（d）」は 10分の 1を 表します。' },
+      { q:'250cm は なんm なんcm ですか？', opts:['1m50cm','2m5cm','2m50cm','3m50cm'], ans:2, exp:'250cm ÷ 100 ＝ 2あまり50。2m50cmです。' },
+      { q:'1m30cm は なんcm ですか？', opts:['103cm','130cm','1030cm','13cm'], ans:1, exp:'1m＝100cm なので、100＋30＝130cm。' },
+      { q:'2500m は なんkm なんm ですか？', opts:['2km5m','25km','2km500m','250km'], ans:2, exp:'2500m ÷ 1000 ＝ 2あまり500。2km500mです。' },
+      { q:'1500g は なんkg なんg ですか？', opts:['1kg5g','15kg','1kg500g','150kg'], ans:2, exp:'1500g ÷ 1000 ＝ 1あまり500。1kg500gです。' },
+      { q:'2L3dL は なんdL ですか？', opts:['5dL','13dL','23dL','203dL'], ans:2, exp:'2L＝20dL なので、20＋3＝23dL。' },
+      { q:'3m ＋ 45cm は なんcm ですか？', opts:['48cm','300cm','345cm','3045cm'], ans:2, exp:'3m＝300cm。300＋45＝345cm。' },
+      { q:'1kg ＋ 500g は なんg ですか？', opts:['501g','600g','1500g','2000g'], ans:2, exp:'1kg＝1000g。1000＋500＝1500g。' },
+      { q:'1L － 3dL は なんdL ですか？', opts:['7dL','8dL','9dL','10dL'], ans:0, exp:'1L＝10dL。10－3＝7dL。' },
+      { q:'3m － 80cm は なんcm ですか？', opts:['200cm','220cm','230cm','280cm'], ans:1, exp:'3m＝300cm。300－80＝220cm。' },
+      { q:'2kg － 400g は なんg ですか？', opts:['1400g','1600g','1800g','2400g'], ans:1, exp:'2kg＝2000g。2000－400＝1600g。' },
+    ]
+  },
+
+  'graph': {
+    label:'グラフ・表', subject:'sansu', type:'mc', count:5,
+    questions:[
+      {
+        q:'グラフを 見て こたえましょう。\nいちばん 本を よんだのは だれですか？',
+        graph:{title:'5月に 本を よんだ さつ数',bars:[{label:'たろう',val:4},{label:'はなこ',val:7},{label:'けんた',val:3},{label:'みき',val:6}],maxV:8},
+        opts:['たろう','はなこ','けんた','みき'], ans:1,
+        exp:'グラフで いちばん 棒が 高いのは はなこ（7さつ）です。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\n4人が よんだ 本は ぜんぶで なんさつですか？',
+        graph:{title:'5月に 本を よんだ さつ数',bars:[{label:'たろう',val:4},{label:'はなこ',val:7},{label:'けんた',val:3},{label:'みき',val:6}],maxV:8},
+        opts:['16さつ','18さつ','20さつ','22さつ'], ans:2,
+        exp:'4＋7＋3＋6＝20さつ。全員分を 足します。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nはなこは けんたより なんさつ 多く よみましたか？',
+        graph:{title:'5月に 本を よんだ さつ数',bars:[{label:'たろう',val:4},{label:'はなこ',val:7},{label:'けんた',val:3},{label:'みき',val:6}],maxV:8},
+        opts:['2さつ','3さつ','4さつ','5さつ'], ans:2,
+        exp:'はなこ7さつ－けんた3さつ＝4さつ 多い。ひき算で もとめます。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nいちばん 人気の スポーツは なんですか？',
+        graph:{title:'すきな スポーツ（人数）',bars:[{label:'サッカー',val:9},{label:'水えい',val:5},{label:'やきゅう',val:7},{label:'テニス',val:4}],maxV:10},
+        opts:['サッカー','水えい','やきゅう','テニス'], ans:0,
+        exp:'グラフで いちばん 棒が 高いのは サッカー（9人）です。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nサッカーは テニスより なんにん 多いですか？',
+        graph:{title:'すきな スポーツ（人数）',bars:[{label:'サッカー',val:9},{label:'水えい',val:5},{label:'やきゅう',val:7},{label:'テニス',val:4}],maxV:10},
+        opts:['3人','4人','5人','6人'], ans:2,
+        exp:'サッカー9人－テニス4人＝5人 多い。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nいちばん 雨の 多かった 月は なんがつですか？',
+        graph:{title:'雨の 日数',bars:[{label:'4月',val:8},{label:'5月',val:10},{label:'6月',val:14},{label:'7月',val:6}],maxV:16},
+        opts:['4月','5月','6月','7月'], ans:2,
+        exp:'グラフで いちばん 棒が 高いのは 6月（14日）です。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\n6月と 7月の 雨の 日数の ちがいは なんにちですか？',
+        graph:{title:'雨の 日数',bars:[{label:'4月',val:8},{label:'5月',val:10},{label:'6月',val:14},{label:'7月',val:6}],maxV:16},
+        opts:['6日','7日','8日','9日'], ans:2,
+        exp:'6月14日－7月6日＝8日 ちがいます。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\n4月から 7月の 雨の 日数を 合わせると なんにちですか？',
+        graph:{title:'雨の 日数',bars:[{label:'4月',val:8},{label:'5月',val:10},{label:'6月',val:14},{label:'7月',val:6}],maxV:16},
+        opts:['34日','36日','38日','40日'], ans:2,
+        exp:'8＋10＋14＋6＝38日。全部の 月の 日数を 足します。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nいちばん 人気の くだものは なんですか？',
+        graph:{title:'すきな くだもの（人数）',bars:[{label:'りんご',val:8},{label:'バナナ',val:5},{label:'みかん',val:10},{label:'ぶどう',val:6}],maxV:12},
+        opts:['りんご','バナナ','みかん','ぶどう'], ans:2,
+        exp:'グラフで いちばん 棒が 高いのは みかん（10人）です。'
+      },
+      {
+        q:'グラフを 見て こたえましょう。\nバナナと ぶどうを 合わせると なんにんですか？',
+        graph:{title:'すきな くだもの（人数）',bars:[{label:'りんご',val:8},{label:'バナナ',val:5},{label:'みかん',val:10},{label:'ぶどう',val:6}],maxV:12},
+        opts:['9人','10人','11人','12人'], ans:2,
+        exp:'バナナ5人＋ぶどう6人＝11人。2つの 棒の 高さを 足します。'
+      },
+    ]
+  }
+
 
 };
 
@@ -1306,7 +1432,7 @@ function renderQuestion() {
 
   // SVG (block problems)
   const svgArea = document.getElementById('svg-area');
-  if (svgArea) { if(q.blocks) svgArea.innerHTML=blocksToSVG(q.blocks); else if(q.clock) svgArea.innerHTML=clockSVG(q.clock.h,q.clock.m); else if(q.net) svgArea.innerHTML=netSVG(q.net); else svgArea.innerHTML=''; }
+  if (svgArea) { if(q.blocks) svgArea.innerHTML=blocksToSVG(q.blocks); else if(q.clock) svgArea.innerHTML=clockSVG(q.clock.h,q.clock.m); else if(q.net) svgArea.innerHTML=netSVG(q.net); else if(q.graph) svgArea.innerHTML=barSVG(q.graph.bars,q.graph.maxV,q.graph.title); else svgArea.innerHTML=''; }
 
   document.getElementById('options-area').innerHTML = '';
   document.getElementById('input-area').innerHTML   = '';
