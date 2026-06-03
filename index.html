@@ -419,12 +419,171 @@
     .action-btn.retry { background: var(--accent); color: #78350F; }
     .action-btn.back { background: #F3F4F6; color: var(--text); }
 
+    /* ===== RECORDS BUTTON on HOME ===== */
+    .records-btn {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: 100%;
+      margin-top: 16px;
+      padding: 14px;
+      border-radius: 16px;
+      border: 2px solid #E5E7EB;
+      background: var(--white);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 0.95rem;
+      font-weight: bold;
+      cursor: pointer;
+      transition: all 0.15s;
+    }
+    .records-btn:hover { border-color: #9CA3AF; background: #F9FAFB; transform: translateY(-2px); }
+
+    /* ===== RECORDS SCREEN ===== */
+    .records-header { padding: 20px 0 4px; }
+    .records-header h2 { font-size: 1.5rem; font-weight: bold; }
+
+    .device-id-box {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      background: #F3F4F6;
+      border-radius: 12px;
+      padding: 10px 14px;
+      margin: 12px 0 20px;
+      font-size: 0.82rem;
+      color: var(--gray);
+    }
+    .device-id-box .did { font-family: monospace; font-weight: bold; color: var(--text); font-size: 0.88rem; }
+    .copy-btn {
+      margin-left: auto;
+      padding: 4px 10px;
+      border-radius: 8px;
+      border: 1px solid #D1D5DB;
+      background: var(--white);
+      font-size: 0.75rem;
+      cursor: pointer;
+      font-family: inherit;
+    }
+    .copy-btn:hover { background: #F9FAFB; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 12px;
+      margin-bottom: 24px;
+    }
+    .stat-card {
+      background: var(--white);
+      border-radius: 16px;
+      padding: 16px 10px;
+      text-align: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+    }
+    .stat-card .stat-val { font-size: 1.7rem; font-weight: bold; color: var(--text); }
+    .stat-card .stat-label { font-size: 0.72rem; color: var(--gray); margin-top: 4px; }
+
+    .section-title {
+      font-size: 0.85rem;
+      font-weight: bold;
+      color: var(--gray);
+      margin: 0 0 10px;
+      letter-spacing: 0.05em;
+    }
+
+    .category-list { margin-bottom: 24px; }
+    .category-row {
+      background: var(--white);
+      border-radius: 14px;
+      padding: 14px 16px;
+      margin-bottom: 10px;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+    }
+    .category-row-top {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 8px;
+    }
+    .category-row-name { font-size: 0.92rem; font-weight: bold; }
+    .category-row-score { font-size: 0.82rem; color: var(--gray); }
+    .category-bar-bg {
+      height: 8px;
+      background: #F3F4F6;
+      border-radius: 8px;
+      overflow: hidden;
+    }
+    .category-bar-fill {
+      height: 100%;
+      border-radius: 8px;
+      transition: width 0.6s ease;
+    }
+    .category-bar-fill.kokugo { background: linear-gradient(90deg, #E85D75, #F997A8); }
+    .category-bar-fill.sansu  { background: linear-gradient(90deg, #3B82F6, #60A5FA); }
+    .category-row-stars { font-size: 0.85rem; margin-top: 6px; color: var(--accent); }
+    .category-row-count { font-size: 0.72rem; color: var(--gray); }
+
+    .history-list { margin-bottom: 24px; }
+    .history-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 14px;
+      background: var(--white);
+      border-radius: 12px;
+      margin-bottom: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+    }
+    .history-badge {
+      width: 36px;
+      height: 36px;
+      border-radius: 10px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.1rem;
+      flex-shrink: 0;
+    }
+    .history-badge.kokugo { background: #FEE2E9; }
+    .history-badge.sansu  { background: #DBEAFE; }
+    .history-info { flex: 1; }
+    .history-label { font-size: 0.88rem; font-weight: bold; }
+    .history-date  { font-size: 0.72rem; color: var(--gray); margin-top: 2px; }
+    .history-score { text-align: right; }
+    .history-score .hs-val { font-size: 1rem; font-weight: bold; }
+    .history-score .hs-pct { font-size: 0.72rem; color: var(--gray); }
+
+    .clear-btn {
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: 1.5px solid #FCA5A5;
+      background: #FFF5F5;
+      color: #EF4444;
+      font-family: inherit;
+      font-size: 0.88rem;
+      cursor: pointer;
+      margin-top: 8px;
+      transition: all 0.15s;
+    }
+    .clear-btn:hover { background: #FEE2E2; }
+
+    .empty-records {
+      text-align: center;
+      padding: 40px 20px;
+      color: var(--gray);
+    }
+    .empty-records .empty-icon { font-size: 3rem; }
+    .empty-records p { margin-top: 12px; font-size: 0.95rem; }
+
     /* ===== RESPONSIVE ===== */
     @media (max-width: 420px) {
       .options-grid { grid-template-columns: 1fr; }
       .subject-cards { grid-template-columns: 1fr 1fr; }
       .menu-grid { grid-template-columns: 1fr 1fr; }
       .result-actions { grid-template-columns: 1fr; }
+      .stats-grid { grid-template-columns: repeat(3, 1fr); }
     }
   </style>
 </head>
@@ -458,7 +617,23 @@
         <div class="card-title">算 数</div>
         <div class="card-desc">けいさん・くく・ずけい</div>
       </button>
+      <button class="records-btn" onclick="showRecords()">📊 学習きろくを見る</button>
     </div>
+  </div>
+</div>
+
+<!-- ===== RECORDS SCREEN ===== -->
+<div id="screen-records" class="screen">
+  <div class="container">
+    <div class="records-header">
+      <h2>📊 学習きろく</h2>
+    </div>
+    <div class="device-id-box">
+      <span>デバイスID：</span>
+      <span class="did" id="device-id-display">---</span>
+      <button class="copy-btn" onclick="copyDeviceId()">コピー</button>
+    </div>
+    <div id="records-content"></div>
   </div>
 </div>
 
@@ -1123,6 +1298,7 @@ function showResult() {
       return '<div class="breakdown-item"><span class="breakdown-icon">' + icon2 + '</span><span>' + detail + '</span></div>';
     }).join('');
 
+  saveRecord(state.quizType, score, total);
   showScreen('result');
 }
 
@@ -1131,9 +1307,172 @@ function retryQuiz() {
 }
 
 // ===================================================
+// DEVICE ID & RECORDS (localStorage)
+// ===================================================
+const DEVICE_KEY  = 'zentouho_device_id';
+const RECORDS_KEY = 'zentouho_records';
+
+function uuid4() {
+  if (typeof crypto !== 'undefined' && crypto.randomUUID) return crypto.randomUUID();
+  return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, c => {
+    const r = Math.random() * 16 | 0;
+    return (c === 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+  });
+}
+
+function getDeviceId() {
+  let id = localStorage.getItem(DEVICE_KEY);
+  if (!id) { id = uuid4(); localStorage.setItem(DEVICE_KEY, id); }
+  return id;
+}
+
+function getRecords() {
+  try { return JSON.parse(localStorage.getItem(RECORDS_KEY) || '[]'); }
+  catch { return []; }
+}
+
+function saveRecord(quizType, score, total) {
+  const records = getRecords();
+  const bank = QB[quizType];
+  records.push({
+    id: uuid4(),
+    deviceId: getDeviceId(),
+    date: new Date().toISOString(),
+    quizType,
+    label: bank.label,
+    subject: bank.subject,
+    score,
+    total
+  });
+  if (records.length > 500) records.splice(0, records.length - 500);
+  localStorage.setItem(RECORDS_KEY, JSON.stringify(records));
+}
+
+function copyDeviceId() {
+  const id = getDeviceId();
+  navigator.clipboard && navigator.clipboard.writeText(id).then(() => {
+    const btn = document.querySelector('.copy-btn');
+    btn.textContent = 'コピー済み ✓';
+    setTimeout(() => { btn.textContent = 'コピー'; }, 2000);
+  });
+}
+
+// ===================================================
+// RECORDS SCREEN
+// ===================================================
+function showRecords() {
+  setBreadcrumb([
+    {label:'🏠 ホーム', action:'goHome()'},
+    {label:'📊 学習きろく', action:null}
+  ]);
+  state.parentScreen = null;
+
+  document.getElementById('device-id-display').textContent = getDeviceId().slice(0, 12) + '…';
+  renderRecordsContent();
+  showScreen('records');
+}
+
+function renderRecordsContent() {
+  const records = getRecords();
+  const el = document.getElementById('records-content');
+
+  if (records.length === 0) {
+    el.innerHTML = '<div class="empty-records"><div class="empty-icon">📭</div><p>まだ きろくが ありません。<br>もんだいに チャレンジしよう！</p></div>';
+    return;
+  }
+
+  // ---- stats ----
+  const totalQ = records.reduce((s, r) => s + r.total, 0);
+  const totalC = records.reduce((s, r) => s + r.score, 0);
+  const pctAll = totalQ > 0 ? Math.round(totalC / totalQ * 100) : 0;
+  const days = new Set(records.map(r => r.date.slice(0, 10))).size;
+
+  let html = '<div class="stats-grid">'
+    + statCard(records.length + '回', 'チャレンジ数')
+    + statCard(pctAll + '%', '正答率')
+    + statCard(days + '日', '学習日数')
+    + '</div>';
+
+  // ---- per-category best ----
+  const cats = Object.keys(QB);
+  const kokugo = cats.filter(k => QB[k].subject === 'kokugo');
+  const sansu  = cats.filter(k => QB[k].subject === 'sansu');
+
+  html += '<div class="section-title">📖 国語 カテゴリ別 さいこうスコア</div><div class="category-list">';
+  html += kokugo.map(k => categoryRow(k, records, 'kokugo')).join('');
+  html += '</div>';
+
+  html += '<div class="section-title">🔢 算数 カテゴリ別 さいこうスコア</div><div class="category-list">';
+  html += sansu.map(k => categoryRow(k, records, 'sansu')).join('');
+  html += '</div>';
+
+  // ---- recent 15 ----
+  const recent = [...records].reverse().slice(0, 15);
+  html += '<div class="section-title">さいきんの きろく（最新15件）</div><div class="history-list">';
+  html += recent.map(r => {
+    const icon = QB[r.quizType].subject === 'kokugo' ? '📖' : '🔢';
+    const subj = QB[r.quizType].subject;
+    const pct  = Math.round(r.score / r.total * 100);
+    const dt   = new Date(r.date);
+    const dateStr = dt.getFullYear() + '/' + pad(dt.getMonth()+1) + '/' + pad(dt.getDate())
+      + ' ' + pad(dt.getHours()) + ':' + pad(dt.getMinutes());
+    return '<div class="history-item">'
+      + '<div class="history-badge ' + subj + '">' + icon + '</div>'
+      + '<div class="history-info"><div class="history-label">' + r.label + '</div>'
+      + '<div class="history-date">' + dateStr + '</div></div>'
+      + '<div class="history-score"><div class="hs-val">' + r.score + '/' + r.total + '</div>'
+      + '<div class="hs-pct">' + pct + '%</div></div>'
+      + '</div>';
+  }).join('');
+  html += '</div>';
+
+  html += '<button class="clear-btn" onclick="clearRecords()">🗑 きろくをすべて消す</button>';
+
+  el.innerHTML = html;
+}
+
+function statCard(val, label) {
+  return '<div class="stat-card"><div class="stat-val">' + val + '</div><div class="stat-label">' + label + '</div></div>';
+}
+
+function categoryRow(quizType, records, subject) {
+  const bank = QB[quizType];
+  const mine = records.filter(r => r.quizType === quizType);
+  if (mine.length === 0) {
+    return '<div class="category-row">'
+      + '<div class="category-row-top"><span class="category-row-name">' + bank.label + '</span>'
+      + '<span class="category-row-score">未挑戦</span></div>'
+      + '<div class="category-bar-bg"><div class="category-bar-fill ' + subject + '" style="width:0%"></div></div>'
+      + '<div class="category-row-stars">☆☆☆☆☆</div><div class="category-row-count">0回</div>'
+      + '</div>';
+  }
+  const best = Math.max(...mine.map(r => r.score / r.total));
+  const pct  = Math.round(best * 100);
+  const stars = Math.round(best * 5);
+  const starStr = '★'.repeat(stars) + '☆'.repeat(5 - stars);
+  const avgPct = Math.round(mine.reduce((s,r)=>s+r.score/r.total,0)/mine.length*100);
+  return '<div class="category-row">'
+    + '<div class="category-row-top"><span class="category-row-name">' + bank.label + '</span>'
+    + '<span class="category-row-score">最高 ' + pct + '% ／ 平均 ' + avgPct + '%</span></div>'
+    + '<div class="category-bar-bg"><div class="category-bar-fill ' + subject + '" style="width:' + pct + '%"></div></div>'
+    + '<div class="category-row-stars">' + starStr + '</div>'
+    + '<div class="category-row-count">' + mine.length + '回 チャレンジ</div>'
+    + '</div>';
+}
+
+function pad(n) { return String(n).padStart(2, '0'); }
+
+function clearRecords() {
+  if (!confirm('きろくを ぜんぶ けしますか？\nこの そうさは もとに もどせません。')) return;
+  localStorage.removeItem(RECORDS_KEY);
+  renderRecordsContent();
+}
+
+// ===================================================
 // INIT
 // ===================================================
 setBreadcrumb([{label:'🏠 ホーム', action:null}]);
+getDeviceId(); // ensure device ID is created on first visit
 </script>
 
 </body>
