@@ -4,12 +4,14 @@ from datetime import datetime
 from functools import wraps
 
 from dotenv import load_dotenv
-from flask import Flask, jsonify, render_template_string, request
+import secrets
+from flask import Flask, jsonify, render_template_string, request, session, redirect, url_for
 from flask_cors import CORS
 
 load_dotenv()
 
 app = Flask(__name__)
+app.secret_key = os.getenv("SECRET_KEY") or secrets.token_hex(32)
 CORS(app, resources={r"/api/*": {"origins": "*"}})
 
 # Railway Volume は /data にマウントする想定。ローカルはカレントディレクトリ
@@ -48,18 +50,36 @@ def init_db():
     conn.commit()
     conn.close()
 
+# gunicorn でも確実に初期化されるようモジュールロード時に実行
+init_db()
+
 
 # ─────────────────────────────────────────────
-# Admin auth
+# Admin auth (session-based)
 # ─────────────────────────────────────────────
 def admin_required(f):
     @wraps(f)
     def decorated(*args, **kwargs):
-        pw = request.args.get("pw", "")
-        if pw != ADMIN_PASSWORD:
-            return render_template_string(LOGIN_HTML)
+        if not session.get("admin_logged_in"):
+            return redirect(url_for("admin_login"))
         return f(*args, **kwargs)
     return decorated
+
+@app.route("/admin/login", methods=["GET", "POST"])
+def admin_login():
+    error = ""
+    if request.method == "POST":
+        if request.form.get("password") == ADMIN_PASSWORD:
+            session["admin_logged_in"] = True
+            session.permanent = True
+            return redirect(url_for("admin_dashboard"))
+        error = "パスワードが違います。"
+    return render_template_string(LOGIN_HTML, error=error)
+
+@app.route("/admin/logout")
+def admin_logout():
+    session.clear()
+    return redirect(url_for("admin_login"))
 
 
 # ─────────────────────────────────────────────
@@ -179,10 +199,8 @@ def admin_dashboard():
     ]
     categories.sort(key=lambda x: x["pct"])
 
-    pw = request.args.get("pw", "")
     return render_template_string(
         ADMIN_HTML,
-        pw=pw,
         total_users=len(users),
         total_quizzes=len(rows),
         overall_pct=overall_pct,
@@ -210,31 +228,28 @@ LOGIN_HTML = """<!DOCTYPE html>
     .card{background:#fff;padding:40px 36px;border-radius:20px;
           box-shadow:0 8px 32px rgba(0,0,0,.1);text-align:center;width:320px}
     h1{font-size:1.4rem;margin-bottom:6px}
-    p{color:#6B7280;font-size:.85rem;margin-bottom:24px}
+    .sub{color:#6B7280;font-size:.85rem;margin-bottom:24px}
+    .error{color:#EF4444;font-size:.85rem;margin-bottom:12px;
+           background:#FEE2E2;padding:8px 12px;border-radius:8px}
     input{width:100%;padding:13px;border:2px solid #E5E7EB;border-radius:10px;
-          font-size:1rem;outline:none;transition:border-color .15s}
+          font-size:1rem;outline:none;transition:border-color .15s;font-family:inherit}
     input:focus{border-color:#3B82F6}
     button{width:100%;margin-top:14px;padding:13px;background:#3B82F6;color:#fff;
-           border:none;border-radius:10px;font-size:1rem;font-weight:bold;cursor:pointer}
+           border:none;border-radius:10px;font-size:1rem;font-weight:bold;
+           cursor:pointer;font-family:inherit}
     button:hover{background:#2563EB}
   </style>
 </head>
 <body>
 <div class="card">
   <h1>🔐 管理画面</h1>
-  <p>パスワードを にゅうりょくして ください</p>
-  <form onsubmit="login(event)">
-    <input type="password" id="pw" placeholder="パスワード" autofocus>
+  <p class="sub">パスワードを入力してください</p>
+  {% if error %}<p class="error">{{ error }}</p>{% endif %}
+  <form method="POST" action="/admin/login">
+    <input type="password" name="password" placeholder="パスワード" autofocus>
     <button type="submit">ログイン</button>
   </form>
 </div>
-<script>
-function login(e){
-  e.preventDefault();
-  const pw=document.getElementById('pw').value;
-  window.location.href='/admin?pw='+encodeURIComponent(pw);
-}
-</script>
 </body>
 </html>"""
 
@@ -375,8 +390,8 @@ ADMIN_HTML = """<!DOCTYPE html>
 <header>
   <h1>🎓 全統小チャレンジ　管理ダッシュボード</h1>
   <div class="header-right">
-    <a href="/admin?pw={{ pw }}">↻ 更新</a>
-    <a href="/admin">🔓 ログアウト</a>
+    <a href="/admin">↻ 更新</a>
+    <a href="/admin/logout">🔓 ログアウト</a>
   </div>
 </header>
 
@@ -397,12 +412,12 @@ ADMIN_HTML = """<!DOCTYPE html>
     <div class="stat-card">
       <div class="stat-icon">✅</div>
       <div class="stat-val">{{ overall_pct }}%</div>
-      <div class="stat-label">全体 正かいりつ</div>
+      <div class="stat-label">全体正解率</div>
     </div>
     <div class="stat-card">
       <div class="stat-icon">📅</div>
       <div class="stat-val">{{ today_quizzes }}</div>
-      <div class="stat-label">きょうの チャレンジ</div>
+      <div class="stat-label">本日のチャレンジ</div>
     </div>
   </div>
 
@@ -411,7 +426,7 @@ ADMIN_HTML = """<!DOCTYPE html>
     <div class="section-head">
       <span class="section-title">👤 ユーザー一覧</span>
       <div style="display:flex;gap:10px;align-items:center">
-        <input class="search-box" id="user-search" placeholder="🔍 なまえ・ID で けんさく" oninput="filterUsers()">
+        <input class="search-box" id="user-search" placeholder="🔍 名前・IDで検索" oninput="filterUsers()">
         <button class="export-btn" onclick="exportCSV()">📥 CSV</button>
       </div>
     </div>
@@ -426,7 +441,7 @@ ADMIN_HTML = """<!DOCTYPE html>
           <th>正かいりつ</th>
           <th>国語</th>
           <th>算数</th>
-          <th>さいごのアクセス</th>
+          <th>最終アクセス</th>
         </tr>
       </thead>
       <tbody>
@@ -434,7 +449,7 @@ ADMIN_HTML = """<!DOCTYPE html>
         <tr class="user-row" data-did="{{ u.device_id }}"
             data-nick="{{ u.nickname }}"
             onclick="toggleDetail('{{ u.device_id }}')">
-          <td><strong>{{ u.nickname if u.nickname else '（名前なし）' }}</strong></td>
+          <td><strong>{{ u.nickname if u.nickname else '（未設定）' }}</strong></td>
           <td class="mono text-gray">{{ u.device_id[:12] }}…</td>
           <td class="text-center">{{ u.count }}回</td>
           <td class="text-center">
@@ -479,7 +494,7 @@ ADMIN_HTML = """<!DOCTYPE html>
     </table>
     </div>
     {% else %}
-    <p class="empty">まだ データが ありません。</p>
+    <p class="empty">データがありません。</p>
     {% endif %}
   </div>
 
@@ -487,7 +502,7 @@ ADMIN_HTML = """<!DOCTYPE html>
   {% if categories %}
   <div class="section">
     <div class="section-head">
-      <span class="section-title">📊 カテゴリ別 正かいりつ</span>
+      <span class="section-title">📊 カテゴリ別正解率</span>
     </div>
     <div class="cat-list">
       {% for c in categories|reverse %}
@@ -510,7 +525,7 @@ ADMIN_HTML = """<!DOCTYPE html>
   <!-- Recent activity -->
   <div class="section">
     <div class="section-head">
-      <span class="section-title">🕐 さいきんのアクティビティ（最新100件）</span>
+      <span class="section-title">🕐 最近の学習履歴（最新100件）</span>
     </div>
     {% if recent %}
     <div style="overflow-x:auto">
@@ -529,7 +544,7 @@ ADMIN_HTML = """<!DOCTYPE html>
         {% set pct = (r.score / r.total * 100)|int %}
         <tr>
           <td class="mono text-gray">{{ r.date[:16]|replace('T',' ') }}</td>
-          <td>{{ r.nickname if r.nickname else '（名前なし）' }}</td>
+          <td>{{ r.nickname if r.nickname else '（未設定）' }}</td>
           <td>
             <span class="subj-badge {{ 'subj-kokugo' if r.subject == 'kokugo' else 'subj-sansu' }}">
               {{ r.label }}
@@ -550,7 +565,7 @@ ADMIN_HTML = """<!DOCTYPE html>
     </table>
     </div>
     {% else %}
-    <p class="empty">まだ データが ありません。</p>
+    <p class="empty">データがありません。</p>
     {% endif %}
   </div>
 
@@ -591,9 +606,9 @@ function toggleDetail(did){
 
     let html = `<div class="detail-grid">
       <div class="detail-stat"><div class="ds-val">${userRes.length}回</div><div class="ds-lbl">チャレンジ数</div></div>
-      <div class="detail-stat"><div class="ds-val">${avg}%</div><div class="ds-lbl">全体 正かいりつ</div></div>
-      ${kPct!==null?`<div class="detail-stat"><div class="ds-val">${kPct}%</div><div class="ds-lbl">国語 正かいりつ</div></div>`:''}
-      ${sPct!==null?`<div class="detail-stat"><div class="ds-val">${sPct}%</div><div class="ds-lbl">算数 正かいりつ</div></div>`:''}
+      <div class="detail-stat"><div class="ds-val">${avg}%</div><div class="ds-lbl">全体正解率</div></div>
+      ${kPct!==null?`<div class="detail-stat"><div class="ds-val">${kPct}%</div><div class="ds-lbl">国語正解率</div></div>`:''}
+      ${sPct!==null?`<div class="detail-stat"><div class="ds-val">${sPct}%</div><div class="ds-lbl">算数正解率</div></div>`:''}
     </div>`;
     html += `<table class="detail-hist"><thead><tr>
       <th>日時</th><th>カテゴリ</th><th>スコア</th><th>正かいりつ</th>
