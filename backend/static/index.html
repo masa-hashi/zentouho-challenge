@@ -299,6 +299,83 @@
     .empty-records .empty-icon { font-size:2.8rem; }
     .empty-records p { margin-top:11px; font-size:.93rem; }
 
+    /* ===== KUKU LEARN ===== */
+    .kuku-learn-card{border:2.5px solid #DDD6FE!important}
+    .kuku-learn-card:hover{border-color:#7C3AED!important;box-shadow:0 6px 18px rgba(124,58,237,.2)!important}
+    .row-selector{display:flex;gap:7px;flex-wrap:wrap;margin:4px 0 16px}
+    .row-btn{
+      width:44px;height:44px;border-radius:12px;
+      border:2px solid #DDD6FE;background:var(--white);
+      font-size:1rem;font-weight:bold;cursor:pointer;
+      transition:all .15s;font-family:inherit;color:#7C3AED
+    }
+    .row-btn:hover{border-color:#7C3AED;background:#EDE9FE}
+    .row-btn.active{background:#7C3AED;color:var(--white);border-color:#7C3AED}
+    .mode-tabs{display:flex;gap:8px;margin-bottom:16px;flex-wrap:wrap}
+    .mode-tab{
+      padding:8px 18px;border-radius:20px;border:2px solid #E5E7EB;
+      background:var(--white);font-family:inherit;font-size:.86rem;
+      font-weight:bold;cursor:pointer;transition:all .15s;color:var(--gray)
+    }
+    .mode-tab.active{background:#7C3AED;color:var(--white);border-color:#7C3AED}
+    .kuku-list{display:flex;flex-direction:column;gap:9px}
+    .kuku-item{
+      background:var(--white);border-radius:14px;padding:13px 16px;
+      box-shadow:0 2px 8px rgba(0,0,0,.06);display:flex;align-items:center;gap:12px
+    }
+    .kuku-item:hover{background:#FAF5FF}
+    .kuku-eq{font-size:1.2rem;font-weight:bold;min-width:110px;color:var(--text)}
+    .kuku-ans{color:#7C3AED}
+    .kuku-yomi{font-size:.9rem;color:var(--gray);flex:1;line-height:1.4}
+    .kuku-speak{
+      padding:6px 10px;border-radius:8px;border:none;background:#EDE9FE;
+      cursor:pointer;font-size:1rem;flex-shrink:0;transition:background .15s
+    }
+    .kuku-speak:hover{background:#DDD6FE}
+    .flash-wrap{perspective:800px;margin-bottom:12px}
+    .flash-card{
+      position:relative;width:100%;height:180px;border-radius:20px;
+      cursor:pointer;transform-style:preserve-3d;transition:transform .5s ease
+    }
+    .flash-card.flipped{transform:rotateY(180deg)}
+    .flash-face{
+      position:absolute;width:100%;height:100%;border-radius:20px;
+      backface-visibility:hidden;display:flex;flex-direction:column;
+      align-items:center;justify-content:center;padding:20px
+    }
+    .flash-front{background:linear-gradient(135deg,#7C3AED,#A78BFA);box-shadow:0 6px 20px rgba(124,58,237,.35)}
+    .flash-front .flash-q{font-size:2.2rem;font-weight:bold;color:#fff}
+    .flash-front .flash-hint{font-size:.82rem;color:rgba(255,255,255,.8);margin-top:10px}
+    .flash-back{background:linear-gradient(135deg,#10B981,#34D399);box-shadow:0 6px 20px rgba(16,185,129,.35);transform:rotateY(180deg)}
+    .flash-back .flash-eq{font-size:1.9rem;font-weight:bold;color:#fff}
+    .flash-back .flash-read{font-size:1.1rem;color:rgba(255,255,255,.95);margin-top:8px}
+    .flash-back .flash-speak{
+      margin-top:14px;padding:8px 20px;border-radius:10px;
+      border:none;background:rgba(255,255,255,.25);color:#fff;
+      font-family:inherit;font-size:.9rem;cursor:pointer
+    }
+    .flash-counter{text-align:center;color:var(--gray);font-size:.85rem;margin:10px 0}
+    .flash-nav{display:flex;gap:10px}
+    .flash-nav-btn{
+      flex:1;padding:13px;border-radius:13px;border:none;
+      background:var(--white);font-family:inherit;font-size:.95rem;
+      font-weight:bold;cursor:pointer;box-shadow:0 2px 8px rgba(0,0,0,.07);
+      transition:all .15s;color:var(--text)
+    }
+    .flash-nav-btn:hover{background:#F3F4F6}
+    .flash-nav-btn:disabled{opacity:.4;cursor:default}
+    .kuku-all-row{
+      display:grid;grid-template-columns:repeat(9,1fr);gap:4px;
+      margin-bottom:16px;background:var(--white);border-radius:16px;
+      padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.06)
+    }
+    .kuku-cell{
+      text-align:center;padding:6px 2px;border-radius:8px;
+      font-size:.78rem;line-height:1.4;background:#FAF5FF
+    }
+    .kuku-cell .k-num{font-weight:bold;color:#7C3AED;font-size:.9rem}
+    .kuku-cell .k-read{color:var(--gray);font-size:.65rem;display:block;margin-top:1px}
+
     /* ===== RESPONSIVE ===== */
     @media(max-width:420px){
       .options-grid { grid-template-columns:1fr; }
@@ -473,7 +550,26 @@
         <div class="card-sub">グラフを よんで こたえよう</div>
         <div class="card-questions">5もん</div>
       </button>
+      <button class="menu-card kuku-learn-card" onclick="showKukuLearn()">
+        <div class="card-big-icon">🎵</div>
+        <div class="card-name" style="color:#7C3AED">九九おぼえよう</div>
+        <div class="card-sub">よみかたから しっかり おぼえよう！</div>
+        <div class="card-questions" style="background:#EDE9FE;color:#7C3AED">おぼえかた</div>
+      </button>
     </div>
+  </div>
+</div>
+
+<!-- ===== KUKU LEARN ===== -->
+<div id="screen-kuku-learn" class="screen">
+  <div class="container">
+    <div class="menu-header sansu" style="--sansu:#7C3AED">
+      <div class="icon">🎵</div>
+      <h2 style="color:#7C3AED">九九 おぼえよう！</h2>
+    </div>
+    <p class="menu-desc">だんを えらんで よみかたを おぼえよう！タップすると 声が きこえるよ 🔊</p>
+    <div class="row-selector" id="kuku-row-selector"></div>
+    <div id="kuku-learn-content"></div>
   </div>
 </div>
 
@@ -1683,6 +1779,137 @@ function clearRecords() {
   renderRecordsContent();
 }
 
+
+// ===================================================
+// 九九 LEARNING MODE
+// ===================================================
+const KUKU_YOMI = [
+  null,
+  ['いんいちがいち','いんにがに','いんさんがさん','いんしがし','いんごがご','いんろくがろく','いんしちがしち','いんはちがはち','いんくがく'],
+  ['にいちがに','ににんがし','にさんがろく','にしがはち','にごじゅう','にろくじゅうに','にしちじゅうし','にはちじゅうろく','にくじゅうはち'],
+  ['さんいちがさん','さんにがろく','さんざんがく','さんしじゅうに','さんごじゅうご','さぶろくじゅうはち','さんしちにじゅういち','さんぱにじゅうし','さんくにじゅうしち'],
+  ['しいちがし','しにがはち','しさんじゅうに','ししじゅうろく','しごにじゅう','しろくにじゅうし','ししちにじゅうはち','しはさんじゅうに','しくさんじゅうろく'],
+  ['ごいちがご','ごにじゅう','ごさんじゅうご','ごしにじゅう','ごごにじゅうご','ごろくさんじゅう','ごしちさんじゅうご','ごはしじゅう','ごくしじゅうご'],
+  ['ろくいちがろく','ろくにじゅうに','ろくさんじゅうはち','ろくしにじゅうし','ろくごさんじゅう','ろくろくさんじゅうろく','ろくしちしじゅうに','ろくはしじゅうはち','ろくくごじゅうし'],
+  ['しちいちがしち','しちにじゅうし','しちさんにじゅういち','しちしにじゅうはち','しちごさんじゅうご','しちろくしじゅうに','しちしちしじゅうく','しちはごじゅうろく','しちくろくじゅうさん'],
+  ['はちいちがはち','はちにじゅうろく','はちさんにじゅうし','はちしさんじゅうに','はちごしじゅう','はちろくしじゅうはち','はちしちごじゅうろく','はちはちろくじゅうし','はちくしちじゅうに'],
+  ['くいちがく','くにじゅうはち','くさんにじゅうしち','くしさんじゅうろく','くごしじゅうご','くろくごじゅうし','くしちろくじゅうさん','くはしちじゅうに','くくはちじゅういち'],
+];
+
+const DAN_NAME = ['','いちのだん','にのだん','さんのだん','しのだん','ごのだん','ろくのだん','しちのだん','はちのだん','くのだん'];
+
+let kukuSt = { row:1, mode:'list', idx:0, flipped:false };
+
+function kukuSpeak(text) {
+  if (!('speechSynthesis' in window)) return;
+  window.speechSynthesis.cancel();
+  var u = new SpeechSynthesisUtterance(text);
+  u.lang = 'ja-JP'; u.rate = 0.8; u.pitch = 1.1;
+  window.speechSynthesis.speak(u);
+}
+
+function showKukuLearn() {
+  setBreadcrumb([
+    {label:'🏠 ホーム',action:'goHome()'},
+    {label:'🔢 算数',action:'showSansuMenu()'},
+    {label:'🎵 九九おぼえよう',action:null}
+  ]);
+  state.parentScreen = 'sansu';
+  var sel = document.getElementById('kuku-row-selector');
+  sel.innerHTML = '';
+  for (var i=1;i<=9;i++) {
+    (function(n){
+      var btn=document.createElement('button');
+      btn.className='row-btn'+(n===kukuSt.row?' active':'');
+      btn.textContent=n+'の段';
+      btn.onclick=function(){selectKukuRow(n);};
+      sel.appendChild(btn);
+    })(i);
+  }
+  renderKukuContent();
+  showScreen('kuku-learn');
+}
+
+function selectKukuRow(n) {
+  kukuSt.row=n; kukuSt.idx=0; kukuSt.flipped=false;
+  document.querySelectorAll('.row-btn').forEach(function(b,i){
+    b.className='row-btn'+(i+1===n?' active':'');
+  });
+  renderKukuContent();
+}
+
+function setKukuMode(mode) {
+  kukuSt.mode=mode; kukuSt.idx=0; kukuSt.flipped=false;
+  document.querySelectorAll('.mode-tab').forEach(function(t){
+    t.className='mode-tab'+(t.dataset.mode===mode?' active':'');
+  });
+  renderKukuArea();
+}
+
+function renderKukuContent() {
+  var n=kukuSt.row;
+  var html='<h3 style="font-size:1.05rem;font-weight:bold;color:#7C3AED;margin-bottom:12px">'
+    +n+'の段（'+DAN_NAME[n]+'）</h3>';
+  html+='<div class="mode-tabs">'
+    +'<button class="mode-tab'+(kukuSt.mode==='list'?' active':'')+'" data-mode="list" onclick="setKukuMode(\'list\')">📋 一覧でおぼえる</button>'
+    +'<button class="mode-tab'+(kukuSt.mode==='flash'?' active':'')+'" data-mode="flash" onclick="setKukuMode(\'flash\')">🃏 フラッシュカード</button>'
+    +'</div><div id="kuku-area"></div>';
+  document.getElementById('kuku-learn-content').innerHTML=html;
+  renderKukuArea();
+}
+
+function renderKukuArea() {
+  var n=kukuSt.row, yomi=KUKU_YOMI[n];
+  var area=document.getElementById('kuku-area');
+  if (!area) return;
+  if (kukuSt.mode==='list') {
+    var html='<div class="kuku-list">';
+    for (var k=1;k<=9;k++) {
+      var ans=n*k, y=yomi[k-1];
+      html+='<div class="kuku-item">'
+        +'<div class="kuku-eq">'+n+' × '+k+' = <span class="kuku-ans">'+ans+'</span></div>'
+        +'<div class="kuku-yomi">🎵 '+y+'</div>'
+        +'<button class="kuku-speak" onclick="kukuSpeak(\''+y+'\')">🔊</button>'
+        +'</div>';
+    }
+    area.innerHTML=html+'</div>';
+  } else {
+    var idx=kukuSt.idx, k2=idx+1, ans2=n*k2, y2=yomi[idx];
+    area.innerHTML=
+      '<div class="flash-wrap">'
+      +'<div class="flash-card'+(kukuSt.flipped?' flipped':'')+'" id="flash-card" onclick="kukuFlip()">'
+        +'<div class="flash-face flash-front">'
+          +'<div class="flash-q">'+n+' × '+k2+' = ？</div>'
+          +'<div class="flash-hint">タップして こたえを みる 👆</div>'
+        +'</div>'
+        +'<div class="flash-face flash-back">'
+          +'<div class="flash-eq">'+n+' × '+k2+' = '+ans2+'</div>'
+          +'<div class="flash-read">🎵 '+y2+'</div>'
+          +'<button class="flash-speak" onclick="event.stopPropagation();kukuSpeak(\''+y2+'\')">🔊 よみかたを きく</button>'
+        +'</div>'
+      +'</div></div>'
+      +'<div class="flash-counter">'+(idx+1)+' / 9</div>'
+      +'<div class="flash-nav">'
+        +'<button class="flash-nav-btn" onclick="kukuMove(-1)"'+(idx===0?' disabled':'')+'>← まえ</button>'
+        +'<button class="flash-nav-btn" onclick="kukuMove(1)"'+(idx===8?' disabled':'')+'>つぎ →</button>'
+      +'</div>';
+  }
+}
+
+function kukuFlip() {
+  kukuSt.flipped=!kukuSt.flipped;
+  var card=document.getElementById('flash-card');
+  if (card) {
+    card.className='flash-card'+(kukuSt.flipped?' flipped':'');
+    if (kukuSt.flipped) kukuSpeak(KUKU_YOMI[kukuSt.row][kukuSt.idx]);
+  }
+}
+
+function kukuMove(dir) {
+  kukuSt.idx=Math.max(0,Math.min(8,kukuSt.idx+dir));
+  kukuSt.flipped=false;
+  renderKukuArea();
+}
 // ===================================================
 // INIT
 // ===================================================
