@@ -47,6 +47,31 @@ def init_db():
             created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
         )
     """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS reports (
+            id             INTEGER PRIMARY KEY AUTOINCREMENT,
+            quiz_type      TEXT    NOT NULL,
+            question_index INTEGER NOT NULL DEFAULT -1,
+            question_text  TEXT    NOT NULL DEFAULT '',
+            opts_json      TEXT    DEFAULT '[]',
+            user_answer    INTEGER DEFAULT -1,
+            correct_answer INTEGER DEFAULT -1,
+            comment        TEXT    DEFAULT '',
+            device_id      TEXT    DEFAULT '',
+            status         TEXT    DEFAULT 'pending',
+            created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        )
+    """)
+    conn.execute("""
+        CREATE TABLE IF NOT EXISTS overrides (
+            quiz_type      TEXT    NOT NULL,
+            question_index INTEGER NOT NULL,
+            correct_answer INTEGER NOT NULL,
+            note           TEXT    DEFAULT '',
+            created_at     TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+            PRIMARY KEY (quiz_type, question_index)
+        )
+    """)
     conn.commit()
     conn.close()
 
@@ -121,6 +146,92 @@ def save_result():
 @app.route("/api/health")
 def health():
     return jsonify({"status": "ok"})
+
+
+@app.route("/api/report", methods=["POST"])
+def submit_report():
+    import json as _json
+    data = request.get_json(silent=True) or {}
+    conn = get_db()
+    try:
+        conn.execute(
+            """INSERT INTO reports
+               (quiz_type, question_index, question_text, opts_json,
+                user_answer, correct_answer, comment, device_id)
+               VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+            (
+                data.get("quizType", ""),
+                int(data.get("questionIndex", -1)),
+                data.get("questionText", ""),
+                _json.dumps(data.get("opts", []), ensure_ascii=False),
+                int(data.get("userAnswer", -1)),
+                int(data.get("correctAnswer", -1)),
+                data.get("comment", ""),
+                data.get("deviceId", ""),
+            ),
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True}), 201
+
+
+@app.route("/api/overrides")
+def get_overrides():
+    conn = get_db()
+    try:
+        rows = [dict(r) for r in conn.execute(
+            "SELECT quiz_type, question_index, correct_answer FROM overrides"
+        ).fetchall()]
+    finally:
+        conn.close()
+    return jsonify(rows)
+
+
+@app.route("/api/admin/report/<int:report_id>/accept", methods=["POST"])
+@admin_required
+def accept_report(report_id):
+    data = request.get_json(silent=True) or {}
+    correct_answer = int(data.get("correct_answer", -1))
+    note = data.get("note", "")
+    conn = get_db()
+    try:
+        row = conn.execute(
+            "SELECT quiz_type, question_index FROM reports WHERE id = ?",
+            (report_id,)
+        ).fetchone()
+        if not row:
+            return jsonify({"error": "not found"}), 404
+        conn.execute(
+            """INSERT INTO overrides (quiz_type, question_index, correct_answer, note)
+               VALUES (?, ?, ?, ?)
+               ON CONFLICT(quiz_type, question_index)
+               DO UPDATE SET correct_answer=excluded.correct_answer,
+                             note=excluded.note,
+                             created_at=CURRENT_TIMESTAMP""",
+            (row["quiz_type"], row["question_index"], correct_answer, note),
+        )
+        conn.execute(
+            "UPDATE reports SET status = 'accepted' WHERE id = ?", (report_id,)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
+
+
+@app.route("/api/admin/report/<int:report_id>/dismiss", methods=["POST"])
+@admin_required
+def dismiss_report(report_id):
+    conn = get_db()
+    try:
+        conn.execute(
+            "UPDATE reports SET status = 'dismissed' WHERE id = ?", (report_id,)
+        )
+        conn.commit()
+    finally:
+        conn.close()
+    return jsonify({"ok": True})
 
 
 @app.route("/")
@@ -246,6 +357,20 @@ def admin_dashboard():
     ]
     categories.sort(key=lambda x: x["pct"])
 
+    import json as _json
+    conn2 = get_db()
+    try:
+        report_rows = [dict(r) for r in conn2.execute(
+            "SELECT * FROM reports WHERE status = 'pending' ORDER BY created_at DESC"
+        ).fetchall()]
+    finally:
+        conn2.close()
+    for r in report_rows:
+        try:
+            r['opts'] = _json.loads(r.get('opts_json') or '[]')
+        except Exception:
+            r['opts'] = []
+
     return render_template_string(
         ADMIN_HTML,
         total_users=len(users),
@@ -255,6 +380,7 @@ def admin_dashboard():
         users=users,
         categories=categories,
         recent=rows[:100],
+        reports=report_rows,
     )
 
 
@@ -306,7 +432,7 @@ ADMIN_HTML = """<!DOCTYPE html>
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
-  <title>管理ダッシュボード - 全統小チャレンジ</title>
+  <title>管理ダッシュボード - 学習チャレンジ</title>
   <style>
     :root{
       --kokugo:#E85D75; --sansu:#3B82F6; --accent:#F59E0B;
@@ -437,6 +563,35 @@ ADMIN_HTML = """<!DOCTYPE html>
     .danger-btn:hover{background:#FEE2E2}
 
 
+    /* reports */
+    .report-card{
+      border:1.5px solid #FDE68A;border-radius:14px;padding:16px 18px;
+      margin-bottom:14px;background:#FFFBEB
+    }
+    .report-meta{display:flex;align-items:center;gap:8px;margin-bottom:8px;flex-wrap:wrap}
+    .report-question{font-size:.9rem;font-weight:bold;margin-bottom:8px;line-height:1.5}
+    .report-opts{display:flex;flex-wrap:wrap;gap:6px;margin-bottom:8px}
+    .ropt-btn{
+      padding:5px 11px;border-radius:8px;border:1.5px solid #E5E7EB;
+      background:#fff;font-size:.8rem;cursor:pointer;font-family:inherit;transition:all .15s
+    }
+    .ropt-btn:hover{border-color:#F59E0B;background:#FEF3C7}
+    .ropt-btn.ropt-selected{border-color:#F59E0B;background:#FEF3C7;font-weight:bold}
+    .ropt-btn.ropt-current{border-color:#10B981;background:#D1FAE5}
+    .report-comment{font-size:.82rem;color:#6B7280;font-style:italic;margin-bottom:10px}
+    .report-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+    .accept-btn{
+      padding:6px 14px;background:#10B981;color:#fff;border:none;
+      border-radius:8px;cursor:pointer;font-size:.82rem;font-weight:bold;font-family:inherit
+    }
+    .accept-btn:hover{background:#059669}
+    .accept-btn:disabled{background:#9CA3AF;cursor:default}
+    .dismiss-btn{
+      padding:6px 14px;background:#F3F4F6;border:1.5px solid #E5E7EB;
+      border-radius:8px;cursor:pointer;font-size:.82rem;font-family:inherit
+    }
+    .dismiss-btn:hover{background:#E5E7EB}
+
     @media(max-width:700px){
       .stats-row{grid-template-columns:repeat(2,1fr)}
       .cat-row{grid-template-columns:100px 1fr 40px 50px}
@@ -451,7 +606,7 @@ ADMIN_HTML = """<!DOCTYPE html>
 <body>
 
 <header>
-  <h1>🎓 全統小チャレンジ　管理ダッシュボード</h1>
+  <h1>🎓 学習チャレンジ　管理ダッシュボード</h1>
   <div class="header-right">
     <a href="/api/admin">↻ 更新</a>
     <a href="/api/admin/logout">🔓 ログアウト</a>
@@ -634,6 +789,45 @@ ADMIN_HTML = """<!DOCTYPE html>
     {% endif %}
   </div>
 
+  <!-- Reports -->
+  {% if reports %}
+  <div class="section">
+    <div class="section-head">
+      <span class="section-title">⚠️ ユーザーからの報告（{{ reports|length }}件）</span>
+    </div>
+    {% for r in reports %}
+    <div class="report-card" id="rcard-{{ r.id }}">
+      <div class="report-meta">
+        <span class="subj-badge subj-sansu" style="background:#FEF3C7;color:#92400E">{{ r.quiz_type }}</span>
+        <span class="mono text-gray" style="font-size:.75rem">問題{{ r.question_index }}</span>
+        <span class="text-gray" style="font-size:.75rem">{{ r.created_at[:16] }}</span>
+      </div>
+      <div class="report-question">{{ r.question_text[:80] }}{% if r.question_text|length > 80 %}…{% endif %}</div>
+      {% if r.opts %}
+      <div class="report-opts" id="ropts-{{ r.id }}">
+        {% for opt in r.opts %}
+        <button class="ropt-btn {% if loop.index0 == r.correct_answer %}ropt-current{% endif %}"
+                id="ropt-{{ r.id }}-{{ loop.index0 }}"
+                onclick="selectRopt({{ r.id }}, {{ loop.index0 }})">
+          {{ loop.index0 }}: {{ opt }}{% if loop.index0 == r.correct_answer %} ✓{% endif %}{% if loop.index0 == r.user_answer %} 👆{% endif %}
+        </button>
+        {% endfor %}
+      </div>
+      {% endif %}
+      {% if r.comment %}
+      <div class="report-comment">「{{ r.comment }}」</div>
+      {% endif %}
+      <div class="report-actions">
+        <span style="font-size:.8rem;color:var(--gray)">正解を選択して取り込む：</span>
+        <button class="accept-btn" id="accept-{{ r.id }}" disabled
+                onclick="acceptReport({{ r.id }})">✅ 取り込む</button>
+        <button class="dismiss-btn" onclick="dismissReport({{ r.id }})">✗ 却下</button>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+  {% endif %}
+
   <!-- Danger zone -->
   <div class="danger-zone">
     <div class="section-head" style="margin-bottom:12px">
@@ -749,6 +943,50 @@ function delAll(){
   doFetch('/api/admin/all', 'DELETE');
 }
 
+// ── Reports ──
+const _selectedOpts = {};
+
+function selectRopt(reportId, optIdx) {
+  _selectedOpts[reportId] = optIdx;
+  document.querySelectorAll('[id^="ropt-' + reportId + '-"]').forEach(btn => {
+    btn.classList.remove('ropt-selected');
+  });
+  const btn = document.getElementById('ropt-' + reportId + '-' + optIdx);
+  if (btn) btn.classList.add('ropt-selected');
+  const acceptBtn = document.getElementById('accept-' + reportId);
+  if (acceptBtn) acceptBtn.disabled = false;
+}
+
+function acceptReport(reportId) {
+  const ansIdx = _selectedOpts[reportId];
+  if (ansIdx === undefined) { alert('正解を選択してください'); return; }
+  if (!confirm('この答え（' + ansIdx + '番）を正解として取り込みますか？')) return;
+  fetch('/api/admin/report/' + reportId + '/accept', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({correct_answer: ansIdx}),
+    credentials: 'same-origin'
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      const card = document.getElementById('rcard-' + reportId);
+      if (card) { card.style.opacity = '0.4'; card.style.pointerEvents = 'none'; }
+    } else { alert('エラーが発生しました'); }
+  }).catch(() => alert('通信エラーが発生しました'));
+}
+
+function dismissReport(reportId) {
+  if (!confirm('この報告を却下しますか？')) return;
+  fetch('/api/admin/report/' + reportId + '/dismiss', {
+    method: 'POST',
+    credentials: 'same-origin'
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      const card = document.getElementById('rcard-' + reportId);
+      if (card) card.remove();
+    } else { alert('エラーが発生しました'); }
+  }).catch(() => alert('通信エラーが発生しました'));
+}
+
 // ── CSV export ──
 function exportCSV(){
   const rows = {{ recent | tojson }};
@@ -769,7 +1007,7 @@ function exportCSV(){
   const blob = new Blob(['﻿'+lines.join('\\n')], {type:'text/csv;charset=utf-8;'});
   const a = document.createElement('a');
   a.href = URL.createObjectURL(blob);
-  a.download = 'zentouho_results_' + new Date().toISOString().slice(0,10) + '.csv';
+  a.download = 'quiz_results_' + new Date().toISOString().slice(0,10) + '.csv';
   a.click();
 }
 </script>

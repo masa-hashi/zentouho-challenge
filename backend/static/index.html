@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>全統小チャレンジ！ 小学２年生</title>
+  <title>小学生 学習チャレンジ！</title>
   <style>
     :root {
       --kokugo: #E85D75;
@@ -223,6 +223,35 @@
     .next-btn:hover { background:#374151; }
     .next-btn.show  { display:block; }
 
+    /* ===== REPORT ===== */
+    .report-area { margin-top:10px; display:none; }
+    .report-area.show { display:block; }
+    .report-toggle-btn {
+      background:none; border:none; color:var(--gray); font-size:.78rem;
+      cursor:pointer; font-family:inherit; padding:2px 0; text-decoration:underline;
+    }
+    .report-toggle-btn:hover { color:var(--text); }
+    .report-form-inner {
+      margin-top:8px; background:#FFFBF0; border:1.5px solid #E5E7EB;
+      border-radius:12px; padding:12px; display:none;
+    }
+    .report-form-inner.open { display:block; }
+    .report-textarea {
+      width:100%; padding:8px 10px; border:1.5px solid #E5E7EB; border-radius:8px;
+      font-size:.85rem; font-family:inherit; resize:none; height:56px; outline:none;
+    }
+    .report-textarea:focus { border-color:var(--accent); }
+    .report-form-btns { display:flex; gap:8px; margin-top:8px; }
+    .report-send-btn {
+      flex:1; padding:8px; background:var(--accent); color:#78350F; border:none;
+      border-radius:9px; font-weight:bold; cursor:pointer; font-family:inherit; font-size:.85rem;
+    }
+    .report-send-btn:hover { background:#D97706; }
+    .report-cancel-btn {
+      padding:8px 14px; background:#F3F4F6; border:1.5px solid #E5E7EB;
+      border-radius:9px; cursor:pointer; font-family:inherit; font-size:.85rem;
+    }
+
     /* ===== RESULT ===== */
     .result-card {
       background:var(--white); border-radius:24px; padding:34px 26px; text-align:center;
@@ -387,8 +416,8 @@
 <body>
 
 <header>
-  <h1>🌟 全統小チャレンジ！ 小学２年生 🌟</h1>
-  <div class="subtitle">四谷学院 全国統一小学生試験 たいさく</div>
+  <h1>🌟 小学生 学習チャレンジ！ 🌟</h1>
+  <div class="subtitle">さんすう・こくご もんだいに チャレンジしよう</div>
 </header>
 
 <div id="breadcrumb">
@@ -597,6 +626,17 @@
       <div class="exp-box" id="exp-box">
         <div class="exp-title">📘 かいせつ</div>
         <div class="exp-body" id="exp-body"></div>
+      </div>
+      <div class="report-area" id="report-area">
+        <button class="report-toggle-btn" onclick="toggleReportForm()">⚠️ この答えに問題がある？報告する</button>
+        <div class="report-form-inner" id="report-form-inner">
+          <p style="font-size:.8rem;color:var(--gray);margin-bottom:6px">答えが違うと思う場合は内容を教えてください（任意）</p>
+          <textarea class="report-textarea" id="report-comment" placeholder="コメント（例：なりますが正しいと思います）"></textarea>
+          <div class="report-form-btns">
+            <button class="report-send-btn" onclick="submitReport()">送信する</button>
+            <button class="report-cancel-btn" onclick="toggleReportForm()">キャンセル</button>
+          </div>
+        </div>
       </div>
       <button class="next-btn" id="next-btn" onclick="nextQuestion()">つぎへ →</button>
     </div>
@@ -1486,7 +1526,7 @@ function startQuiz(type) {
     bank.passages.forEach(p => p.questions.forEach(q => flat.push({ passage:p.text, ...q })));
     state.questions = flat.slice(0, bank.count);
   } else {
-    state.questions = shuffle(bank.questions).slice(0, bank.count);
+    state.questions = shuffle(bank.questions.map((q, i) => ({...q, _bankIdx: i}))).slice(0, bank.count);
   }
 
   const subj = bank.subject;
@@ -1557,10 +1597,13 @@ function renderQuestion() {
     inp.addEventListener('keydown', e => { if (e.key === 'Enter') checkFill(); });
   }
 
-  // reset feedback & exp
+  // reset feedback & exp & report
   document.getElementById('feedback-box').className = 'feedback-box';
   document.getElementById('exp-box').className      = 'exp-box';
   document.getElementById('exp-body').textContent   = '';
+  document.getElementById('report-area').className  = 'report-area';
+  document.getElementById('report-form-inner').className = 'report-form-inner';
+  document.getElementById('report-comment').value   = '';
   const nb = document.getElementById('next-btn');
   nb.className = 'next-btn';
   nb.textContent = idx === total - 1 ? 'けっかを 見る 🏆' : 'つぎへ →';
@@ -1627,6 +1670,7 @@ function showFeedback(isCorrect, q) {
     document.getElementById('exp-box').className = 'exp-box show';
   }
   document.getElementById('next-btn').className = 'next-btn show';
+  document.getElementById('report-area').className = 'report-area show';
 }
 
 // ===================================================
@@ -1911,11 +1955,62 @@ function kukuMove(dir) {
   renderKukuArea();
 }
 // ===================================================
+// OVERRIDES & REPORT
+// ===================================================
+function loadOverrides() {
+  fetch('/api/overrides').then(r => r.json()).then(list => {
+    list.forEach(({quiz_type, question_index, correct_answer}) => {
+      if (QB[quiz_type] && QB[quiz_type].questions[question_index] !== undefined) {
+        QB[quiz_type].questions[question_index].ans = correct_answer;
+      }
+    });
+  }).catch(() => {});
+}
+
+function toggleReportForm() {
+  const inner = document.getElementById('report-form-inner');
+  if (!inner) return;
+  inner.classList.toggle('open');
+  if (inner.classList.contains('open')) {
+    document.getElementById('report-comment').focus();
+  }
+}
+
+function submitReport() {
+  const q = state.questions[state.current];
+  if (!q) return;
+  const comment = (document.getElementById('report-comment').value || '').trim();
+  const bank = QB[state.quizType];
+  fetch('/api/report', {
+    method: 'POST',
+    headers: {'Content-Type': 'application/json'},
+    body: JSON.stringify({
+      quizType:      state.quizType,
+      questionIndex: q._bankIdx !== undefined ? q._bankIdx : -1,
+      questionText:  q.q || '',
+      opts:          q.opts || [],
+      userAnswer:    state.answered && q.opts ? (q.opts.indexOf((state.answers[state.answers.length-1]||{}).userAns)) : -1,
+      correctAnswer: q.ans !== undefined ? q.ans : -1,
+      comment:       comment,
+      deviceId:      getDeviceId(),
+    })
+  }).then(r => r.json()).then(d => {
+    if (d.ok) {
+      document.getElementById('report-form-inner').classList.remove('open');
+      document.getElementById('report-comment').value = '';
+      document.getElementById('report-area').innerHTML =
+        '<span style="font-size:.78rem;color:var(--green)">✅ 報告を送信しました。ありがとうございます。</span>';
+    }
+  }).catch(() => {});
+}
+
+// ===================================================
 // INIT
 // ===================================================
 setBreadcrumb([{label:'🏠 ホーム', action:null}]);
 getDeviceId();
 renderNicknameSection();
+loadOverrides();
 </script>
 </body>
 </html>
